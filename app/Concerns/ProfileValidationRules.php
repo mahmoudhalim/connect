@@ -48,4 +48,11 @@ trait ProfileValidationRules
                 : Rule::unique(User::class)->ignore($userId),
         ];
     }
+    /**
+     * @return array<int,string>
+     */
+    protected function roleRules(): array
+    {
+        return ['required', 'string', 'in:employer,candidate'];
+    }
 }
