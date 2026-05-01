@@ -27,7 +27,7 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'role' => 'candidate',
+            'role' => fake()->randomElement(['candidate', 'employer']),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -57,5 +57,23 @@ class UserFactory extends Factory
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),
         ]);
+    }
+
+    public function employer(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => 'employer',
+            ];
+        });
+    }
+
+    public function candidate(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => 'candidate',
+            ];
+        });
     }
 }

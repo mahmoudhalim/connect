@@ -3,10 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -19,6 +19,30 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use TwoFactorAuthenticatable;
+
+
+    public function isAdmin(): bool
+    {
+        return $this->role == 'admin';
+    }
+
+    public function isEmployer(): bool
+    {
+        return $this->role == 'employer';
+    }
+
+    public function isCandidate(): bool
+    {
+        return $this->role == 'candidate';
+    }
+
+    /**
+     * @return HasMany<JobPosting,User>
+     */
+    public function jobPostings(): HasMany
+    {
+        return $this->hasMany(JobPosting::class, 'employer_id');
+    }
 
     /**
      * Get the attributes that should be cast.

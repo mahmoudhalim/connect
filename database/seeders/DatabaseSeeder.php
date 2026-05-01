@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\JobPosting;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -14,13 +15,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'role' => 'candidate',
+            'name' => 'Admin',
+            'email' => 'admin@test.com',
+            'role' => 'admin',
             'password' => Hash::make('password'),
         ]);
+
+        User::factory(10)->candidate()->create();
+        User::factory(10)->employer()->has(JobPosting::factory()->count(5), 'jobPostings')->create();
     }
 }
