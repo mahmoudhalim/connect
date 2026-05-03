@@ -12,16 +12,22 @@ export default function EmployerLayout({
     const { url } = usePage();
     const user = auth?.user;
 
-    const isActive = (path: string) => url.startsWith(path);
+    const isActive = (path: string, isExact: boolean = false) => {
+        if (isExact) {
+            return path === url;
+        }
 
-    const getLinkClasses = (path: string) => {
+        return url.startsWith(path);
+    };
+
+    const getLinkClasses = (path: string, isExact: boolean = false) => {
         const activeClasses =
             'border-violet-400 bg-[#18181b] text-violet-400 font-medium';
         const inactiveClasses =
             'border-transparent text-[#a1a1aa] hover:bg-[#0c0c0f] hover:text-[#fafafa]';
 
         return `flex items-center gap-3 border-l-4 px-4 py-3 transition-transform active:scale-[0.98] ${
-            isActive(path) ? activeClasses : inactiveClasses
+            isActive(path, isExact) ? activeClasses : inactiveClasses
         }`;
     };
 
@@ -67,14 +73,15 @@ export default function EmployerLayout({
                         <span>Dashboard</span>
                     </Link>
                     <Link
-                        href="/employer/postings"
-                        className={getLinkClasses('/employer/postings')}
+                        href="/employer/jobs"
+                        className={getLinkClasses('/employer/jobs', true)}
                     >
                         <span
                             className="material-symbols-outlined text-[20px]"
                             style={{
                                 fontVariationSettings: isActive(
-                                    '/employer/postings',
+                                    '/employer/jobs',
+                                    true,
                                 )
                                     ? "'FILL' 1"
                                     : "'FILL' 0",
