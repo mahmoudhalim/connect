@@ -29,9 +29,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/employer/jobs/', [JobPostingController::class, 'store'])->name('employer.jobs.store');
 
     Route::get('/jobs/{jobPosting}', [JobPostingController::class, 'show'])->name('jobs.show');
+    Route::get('/jobs/{jobPosting}/edit', [JobPostingController::class, 'edit'])->name('jobs.edit')->middleware('can:update,jobPosting');
+    Route::put('/employer/jobs/{jobPosting}', [JobPostingController::class, 'update'])->name('employer.jobs.update')->middleware('can:update,jobPosting');
+
+
     Route::prefix("employer")->group(function () {
         Route::get('/jobs', [JobPostingController::class, 'index'])->name('employer.jobs.index');
     });
+
     // Other specific routes
     Route::inertia('/candidate/search', 'test')->name('candidate.search');
 });

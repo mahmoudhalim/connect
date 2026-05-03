@@ -12,7 +12,7 @@ class UpdateJobPostingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,8 @@ class UpdateJobPostingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required|string|min:5|max:30',
+            'description' => 'required|string|min:5|max:1023',
         ];
     }
 }

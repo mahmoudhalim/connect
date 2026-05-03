@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreJobPostingRequest;
 use App\Http\Requests\UpdateJobPostingRequest;
 use App\Models\JobPosting;
@@ -48,7 +49,7 @@ class JobPostingController extends Controller
      */
     public function edit(JobPosting $jobPosting)
     {
-        //
+        return Inertia::render('employer/jobs/edit', compact('jobPosting'));
     }
 
     /**
@@ -56,14 +57,7 @@ class JobPostingController extends Controller
      */
     public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(JobPosting $jobPosting)
-    {
-        //
+        $jobPosting->update($request->validated());
+        return redirect()->route('jobs.show', $jobPosting)->with('success', 'Job posting updated successfully.');
     }
 }
