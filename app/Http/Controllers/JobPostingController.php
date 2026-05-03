@@ -12,7 +12,11 @@ class JobPostingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {}
+    public function index(Request $request)
+    {
+        $jobs = $request->user()->jobPostings()->paginate(6);
+        return Inertia::render('employer/jobs/index', compact('jobs'));
+    }
 
     /**
      * Show the form for creating a new resource.

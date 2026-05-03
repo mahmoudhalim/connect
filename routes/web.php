@@ -29,6 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/employer/jobs/', [JobPostingController::class, 'store'])->name('employer.jobs.store');
 
     Route::get('/jobs/{jobPosting}', [JobPostingController::class, 'show'])->name('jobs.show');
+    Route::prefix("employer")->group(function () {
+        Route::get('/jobs', [JobPostingController::class, 'index'])->name('employer.jobs.index');
+    });
     // Other specific routes
     Route::inertia('/candidate/search', 'test')->name('candidate.search');
 });
