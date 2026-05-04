@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\JobPostingController;
+use App\Http\Controllers\Employer\JobPostingController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -25,20 +25,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('/admin/dashboard', 'admin/dashboard')->name('admin.dashboard');
     Route::inertia('/employer/dashboard', 'employer/dashboard')->name('employer.dashboard');
     Route::inertia('/candidate/dashboard', 'candidate/dashboard')->name('candidate.dashboard');
-    Route::get('/employer/jobs/create', [JobPostingController::class, 'create'])->name('employer.jobs.create');
-    Route::post('/employer/jobs/', [JobPostingController::class, 'store'])->name('employer.jobs.store');
-
-    Route::get('/jobs/{jobPosting}', [JobPostingController::class, 'show'])->name('jobs.show');
-    Route::get('/jobs/{jobPosting}/edit', [JobPostingController::class, 'edit'])->name('jobs.edit')->middleware('can:update,jobPosting');
-    Route::put('/employer/jobs/{jobPosting}', [JobPostingController::class, 'update'])->name('employer.jobs.update')->middleware('can:update,jobPosting');
 
 
-    Route::prefix("employer")->group(function () {
-        Route::get('/jobs', [JobPostingController::class, 'index'])->name('employer.jobs.index');
-    });
 
     // Other specific routes
     Route::inertia('/candidate/search', 'test')->name('candidate.search');
 });
+
+
+// Employer Routes
+Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
+    Route::resource('jobs', JobPostingController::class)->only('index', 'create', 'store');
+    Route::get('/jobs/{jobPosting}', [JobPostingController::class, 'show'])->name('jobs.show');
+    Route::get('/jobs/{jobPosting}/edit', [JobPostingController::class, 'edit'])->name('jobs.edit');
+    Route::put('/jobs/{jobPosting}', [JobPostingController::class, 'update'])->name('jobs.update');
+});
+
+
 
 require __DIR__ . '/settings.php';

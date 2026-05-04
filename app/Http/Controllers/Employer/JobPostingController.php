@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Employer;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreJobPostingRequest;
 use App\Http\Requests\UpdateJobPostingRequest;
@@ -33,7 +34,7 @@ class JobPostingController extends Controller
     public function store(StoreJobPostingRequest $request)
     {
         $jobPosting = $request->user()->jobPostings()->create($request->validated());
-        return redirect()->route('jobs.show', $jobPosting);
+        return redirect()->route('employer.jobs.show', $jobPosting);
     }
 
     /**
@@ -57,7 +58,8 @@ class JobPostingController extends Controller
      */
     public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting)
     {
+
         $jobPosting->update($request->validated());
-        return redirect()->route('jobs.show', $jobPosting)->with('success', 'Job posting updated successfully.');
+        return redirect()->route('employer.jobs.show', $jobPosting)->with('success', 'Job posting updated successfully.');
     }
 }

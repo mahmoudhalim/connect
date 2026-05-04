@@ -138,7 +138,7 @@ export default function JobPostingCard({
                 </div>
                 <div className="flex gap-2">
                     <Link
-                        href={`/jobs/${id}/edit`}
+                        href={`/employer/jobs/${id}/edit`}
                         className="rounded p-1.5 text-on-secondary-container transition-colors hover:bg-primary/10 hover:text-primary"
                         title="Edit"
                     >
