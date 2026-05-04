@@ -15,8 +15,13 @@ return new class extends Migration {
             $table->foreignId('employer_id')->constrained('users')->cascadeOnDelete();
 
             $table->string('title');
+            $table->enum('employmentType', ['full-time', 'part-time', 'contract', 'freelance'])->default('full-time');
+            $table->enum('workPlaceType', ['onsite', 'remote', 'hybrid'])->default('onsite');
+            $table->string('location');
+            $table->decimal('minSalary', 10, 2);
+            $table->decimal('maxSalary', 10, 2);
             $table->text('description');
-            $table->enum('status', ['pending', 'active', 'closed'])->default('pending');
+            $table->enum('status', ['pending', 'active', 'closed', 'draft'])->default('pending');
 
             $table->timestamps();
         });

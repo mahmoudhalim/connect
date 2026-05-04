@@ -20,6 +20,11 @@ class JobPostingFactory extends Factory
     {
         return [
             'title' => $this->faker->jobTitle(),
+            'employmentType' => $this->faker->randomElement(['full-time', 'part-time', 'contract', 'freelance']),
+            'workPlaceType' => $this->faker->randomElement(['onsite', 'remote', 'hybrid']),
+            'location' => $this->faker->city(),
+            'minSalary' => $this->faker->randomFloat(2, 1000, 10000),
+            'maxSalary' => $this->faker->randomFloat(2, 10000, 20000),
             'description' => $this->faker->paragraphs(3, true),
             'status' => $this->faker->randomElement(['pending', 'active', 'closed']),
             'employer_id' => User::factory(),

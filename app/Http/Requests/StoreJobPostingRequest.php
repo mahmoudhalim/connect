@@ -24,7 +24,13 @@ class StoreJobPostingRequest extends FormRequest
     {
         return [
             'title' => 'required|string|min:5|max:30',
+            'employmentType' => 'required|in:full-time,part-time,contract,freelance',
+            'workPlaceType' => 'required|in:hybrid,remote,onsite',
+            'location' => 'required|string|max:255',
             'description' => 'required|string|min:5|max:1023',
+            'minSalary' => 'required|numeric|lt:maxSalary',
+            'maxSalary' => 'required|numeric|gt:minSalary',
+            'status' => 'nullable|in:pending,active,closed',
         ];
     }
 }

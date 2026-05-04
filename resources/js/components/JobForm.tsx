@@ -1,43 +1,30 @@
 import { Form, usePage } from '@inertiajs/react';
 import React, { useState } from 'react';
+import type JobPosting from '@/types/jobPosting';
 
 interface JobFormProps {
-    job?: any;
+    job?: JobPosting;
     action: string;
     method: 'post' | 'put' | 'patch';
     submitText: string;
 }
 
-export default function JobForm({ job, action, method, submitText }: JobFormProps) {
+export default function JobForm({
+    job,
+    action,
+    method,
+    submitText,
+}: JobFormProps) {
     const { errors } = usePage<any>().props;
-    const [workplaceType, setWorkplaceType] = useState(job?.workplace_type || 'Hybrid');
-    const [employmentType, setEmploymentType] = useState(job?.employment_type || 'Full-time');
-    
-    // Parse skills from job if they exist (assuming it's a JSON array or similar)
-    const initialSkills = job?.skills ? (typeof job.skills === 'string' ? JSON.parse(job.skills) : job.skills) : [];
-    const [skills, setSkills] = useState<string[]>(initialSkills);
-    const [skillInput, setSkillInput] = useState('');
-
-    const handleAddSkill = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && skillInput.trim() !== '') {
-            e.preventDefault();
-            if (!skills.includes(skillInput.trim())) {
-                setSkills([...skills, skillInput.trim()]);
-            }
-            setSkillInput('');
-        }
-    };
-
-    const handleRemoveSkill = (skillToRemove: string) => {
-        setSkills(skills.filter((skill) => skill !== skillToRemove));
-    };
+    const [workplaceType, setWorkplaceType] = useState(
+        job?.workPlaceType || 'hybrid',
+    );
+    const [employmentType, setEmploymentType] = useState(
+        job?.employmentType || 'full-time',
+    );
 
     return (
-        <Form
-            action={action}
-            method={method}
-            className="space-y-8"
-        >
+        <Form action={action} method={method} className="space-y-8">
             {/*  Section 1: Basic Information  */}
             <section className="rounded-xl border border-outline-variant bg-surface-container p-6">
                 <div className="mb-6 flex items-center gap-2">
@@ -47,9 +34,7 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                     >
                         info
                     </span>
-                    <h3 className="text-lg font-semibold">
-                        Basic Information
-                    </h3>
+                    <h3 className="text-lg font-semibold">Basic Information</h3>
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="space-y-1">
@@ -69,59 +54,36 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                             </p>
                         )}
                     </div>
+
                     <div className="space-y-2">
-                        <label className="text-xs font-bold tracking-wider text-secondary uppercase">
-                            Department
-                        </label>
-                        <select
-                            name="department"
-                            defaultValue={job?.department}
-                            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-4 py-2.5 transition-all outline-none focus:border-transparent focus:ring-2 focus:ring-primary"
-                        >
-                            <option value="">Select Department</option>
-                            <option>Engineering</option>
-                            <option>Design</option>
-                            <option>Product</option>
-                            <option>Marketing</option>
-                            <option>Operations</option>
-                        </select>
-                        {errors.department && (
-                            <p className="mt-1 text-xs font-medium text-error">
-                                {errors.department}
-                            </p>
-                        )}
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                        <label className="text-xs font-bold tracking-wider text-secondary uppercase">
+                        <label className="tracring-wider text-xs font-bold text-secondary uppercase">
                             Employment Type
                         </label>
                         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
                             {[
-                                'Full-time',
-                                'Contract',
-                                'Part-time',
-                                'Freelance',
+                                { label: 'Full-time', value: 'full-time' },
+                                { label: 'Contract', value: 'contract' },
+                                { label: 'Part-time', value: 'part-time' },
+                                { label: 'Freelance', value: 'freelance' },
                             ].map((type) => (
                                 <label
-                                    key={type}
+                                    key={type.value}
                                     className={`cursor-pointer rounded-lg border px-4 py-2.5 text-center text-xs font-semibold transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary ${
-                                        employmentType !== type &&
+                                        employmentType !== type.value &&
                                         'border-outline-variant bg-surface-container-lowest hover:bg-surface-variant'
                                     }`}
                                 >
                                     <input
                                         type="radio"
                                         name="employmentType"
-                                        value={type}
-                                        checked={
-                                            employmentType === type
-                                        }
+                                        value={type.value}
+                                        checked={employmentType === type.value}
                                         onChange={() =>
-                                            setEmploymentType(type)
+                                            setEmploymentType(type.value)
                                         }
                                         className="sr-only"
                                     />
-                                    {type}
+                                    {type.label}
                                 </label>
                             ))}
                         </div>
@@ -152,35 +114,35 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                             Workplace Type
                         </label>
                         <div className="grid grid-cols-3 gap-2">
-                            {['Remote', 'Hybrid', 'On-site'].map(
-                                (type) => (
-                                    <label
-                                        key={type}
-                                        className={`cursor-pointer rounded-lg border px-2 py-2.5 text-center text-xs font-semibold transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary ${
-                                            workplaceType !== type &&
-                                            'border-outline-variant bg-surface-container-lowest hover:bg-surface-variant'
-                                        }`}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="workplaceType"
-                                            value={type}
-                                            checked={
-                                                workplaceType === type
-                                            }
-                                            onChange={() =>
-                                                setWorkplaceType(type)
-                                            }
-                                            className="sr-only"
-                                        />
-                                        {type}
-                                    </label>
-                                ),
-                            )}
+                            {[
+                                { label: 'Remote', value: 'remote' },
+                                { label: 'Hybrid', value: 'hybrid' },
+                                { label: 'On-site', value: 'onsite' },
+                            ].map((type) => (
+                                <label
+                                    key={type.value}
+                                    className={`cursor-pointer rounded-lg border px-2 py-2.5 text-center text-xs font-semibold transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary ${
+                                        workplaceType !== type.value &&
+                                        'border-outline-variant bg-surface-container-lowest hover:bg-surface-variant'
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="workPlaceType"
+                                        value={type.value}
+                                        checked={workplaceType === type.value}
+                                        onChange={() =>
+                                            setWorkplaceType(type.value)
+                                        }
+                                        className="sr-only"
+                                    />
+                                    {type.label}
+                                </label>
+                            ))}
                         </div>
-                        {errors.workplaceType && (
+                        {errors.workPlaceType && (
                             <p className="mt-1 text-xs font-medium text-error">
-                                {errors.workplaceType}
+                                {errors.workPlaceType}
                             </p>
                         )}
                     </div>
@@ -220,9 +182,7 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                     >
                         payments
                     </span>
-                    <h3 className="text-lg font-semibold">
-                        Compensation
-                    </h3>
+                    <h3 className="text-lg font-semibold">Compensation</h3>
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="space-y-2">
@@ -234,16 +194,16 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                                 $
                             </span>
                             <input
-                                name="min_salary"
-                                defaultValue={job?.min_salary}
+                                name="minSalary"
+                                defaultValue={job?.minSalary}
                                 className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest py-2.5 pr-4 pl-8 outline-none focus:border-transparent focus:ring-2 focus:ring-primary"
                                 placeholder="120,000"
                                 type="number"
                             />
                         </div>
-                        {errors.min_salary && (
+                        {errors.minSalary && (
                             <p className="mt-1 text-xs font-medium text-error">
-                                {errors.min_salary}
+                                {errors.minSalary}
                             </p>
                         )}
                     </div>
@@ -256,16 +216,16 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                                 $
                             </span>
                             <input
-                                name="max_salary"
-                                defaultValue={job?.max_salary}
+                                name="maxSalary"
+                                defaultValue={job?.maxSalary}
                                 className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest py-2.5 pr-4 pl-8 outline-none focus:border-transparent focus:ring-2 focus:ring-primary"
                                 placeholder="180,000"
                                 type="number"
                             />
                         </div>
-                        {errors.max_salary && (
+                        {errors.maxSalary && (
                             <p className="mt-1 text-xs font-medium text-error">
-                                {errors.max_salary}
+                                {errors.maxSalary}
                             </p>
                         )}
                     </div>
@@ -280,9 +240,7 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                     >
                         description
                     </span>
-                    <h3 className="text-lg font-semibold">
-                        Job Details
-                    </h3>
+                    <h3 className="text-lg font-semibold">Job Details</h3>
                 </div>
                 <div className="space-y-6">
                     <div className="space-y-2">
@@ -304,94 +262,6 @@ export default function JobForm({ job, action, method, submitText }: JobFormProp
                             </p>
                         )}
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold tracking-wider text-secondary uppercase">
-                            Required Skills
-                        </label>
-                        <div className="flex flex-wrap gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 transition-all focus-within:ring-2 focus-within:ring-primary">
-                            {skills.map((skill) => (
-                                <span
-                                    key={skill}
-                                    className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
-                                >
-                                    {skill}
-                                    <button
-                                        className="material-symbols-outlined text-[14px]"
-                                        data-icon="close"
-                                        type="button"
-                                        onClick={() =>
-                                            handleRemoveSkill(skill)
-                                        }
-                                    >
-                                        close
-                                    </button>
-                                    <input
-                                        type="hidden"
-                                        name="skills[]"
-                                        value={skill}
-                                    />
-                                </span>
-                            ))}
-                            <input
-                                className="min-w-[120px] flex-1 border-none bg-transparent py-1 text-sm focus:ring-0"
-                                placeholder="Add more... (press Enter to add)"
-                                type="text"
-                                value={skillInput}
-                                onChange={(e) =>
-                                    setSkillInput(e.target.value)
-                                }
-                                onKeyDown={handleAddSkill}
-                            />
-                        </div>
-                        {errors.skills && (
-                            <p className="mt-1 text-xs font-medium text-error">
-                                {errors.skills}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            </section>
-            {/*  Section 5: Company Branding  */}
-            <section className="rounded-xl border border-outline-variant bg-surface-container p-6">
-                <div className="mb-6 flex items-center gap-2">
-                    <span
-                        className="material-symbols-outlined text-xl text-primary"
-                        data-icon="image"
-                    >
-                        image
-                    </span>
-                    <h3 className="text-lg font-semibold">
-                        Company Branding
-                    </h3>
-                </div>
-                <div className="space-y-2">
-                    <label className="text-xs font-bold tracking-wider text-secondary uppercase">
-                        Company Logo
-                    </label>
-                    <div className="group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-outline-variant p-10 transition-all hover:border-primary/50 hover:bg-primary/5">
-                        <span
-                            className="material-symbols-outlined mb-4 text-4xl text-outline transition-colors group-hover:text-primary"
-                            data-icon="cloud_upload"
-                        >
-                            cloud_upload
-                        </span>
-                        <p className="text-sm font-medium text-on-surface">
-                            Drag and drop your logo here
-                        </p>
-                        <p className="mt-1 text-xs text-secondary">
-                            SVG, PNG, JPG (max. 2MB)
-                        </p>
-                        <input
-                            name="logo"
-                            className="absolute inset-0 cursor-pointer opacity-0"
-                            type="file"
-                        />
-                    </div>
-                    {errors.logo && (
-                        <p className="mt-1 text-xs font-medium text-error">
-                            {errors.logo}
-                        </p>
-                    )}
                 </div>
             </section>
             {/*  Footer Actions  */}

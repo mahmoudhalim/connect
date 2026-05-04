@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['title', 'description', 'employer_id', 'status'])]
+#[Fillable(['title', 'description', 'employer_id', 'status', 'location', 'employmentType', 'workPlaceType', 'minSalary', 'maxSalary'])]
 
 class JobPosting extends Model
 {
