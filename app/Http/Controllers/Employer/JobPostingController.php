@@ -58,8 +58,16 @@ class JobPostingController extends Controller
      */
     public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting)
     {
-
         $jobPosting->update($request->validated());
         return redirect()->route('employer.jobs.show', $jobPosting)->with('success', 'Job posting updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(JobPosting $jobPosting)
+    {
+        $jobPosting->delete();
+        return redirect()->route('employer.jobs.index')->with('success', 'Job posting deleted successfully.');
     }
 }

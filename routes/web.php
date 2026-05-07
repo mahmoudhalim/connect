@@ -26,8 +26,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('/employer/dashboard', 'employer/dashboard')->name('employer.dashboard');
     Route::inertia('/candidate/dashboard', 'candidate/dashboard')->name('candidate.dashboard');
 
-
-
     // Other specific routes
     Route::inertia('/candidate/search', 'test')->name('candidate.search');
 });
@@ -39,6 +37,7 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/jobs/{jobPosting}', [JobPostingController::class, 'show'])->name('jobs.show');
     Route::get('/jobs/{jobPosting}/edit', [JobPostingController::class, 'edit'])->name('jobs.edit');
     Route::put('/jobs/{jobPosting}', [JobPostingController::class, 'update'])->name('jobs.update');
+    Route::delete('/jobs/{jobPosting}', [JobPostingController::class, 'destroy'])->name('jobs.destroy');
 });
 
 

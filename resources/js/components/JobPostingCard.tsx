@@ -1,5 +1,69 @@
-import { Link } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
+
+function DeleteButton({ id }: { id: number }) {
+    const [open, setOpen] = useState(false);
+    const { delete: destroy, processing } = useForm();
+
+    const handleDelete = () => {
+        destroy(`/employer/jobs/${id}`, {
+            onSuccess: () => setOpen(false),
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <button
+                    className="rounded p-1.5 text-on-secondary-container transition-colors hover:bg-error/10 hover:text-error"
+                    title="Delete"
+                >
+                    <span
+                        className="material-symbols-outlined mt-0.5 text-[18px]"
+                        data-icon="delete"
+                    >
+                        delete
+                    </span>
+                </button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Delete Job Posting</DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to delete this job posting? This
+                        action cannot be undone.
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button
+                        variant="outline"
+                        onClick={() => setOpen(false)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        onClick={handleDelete}
+                        disabled={processing}
+                    >
+                        Delete
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 export interface JobPostingCardProps {
     id: number;
@@ -149,6 +213,7 @@ export default function JobPostingCard({
                             edit_square
                         </span>
                     </Link>
+                    <DeleteButton id={id} />
                     <button className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-inverse-on-surface transition-colors duration-150 hover:bg-primary-fixed-dim active:scale-95">
                         View Applicants
                     </button>
