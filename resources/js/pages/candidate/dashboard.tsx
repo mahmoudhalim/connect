@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import React from 'react';
 import CandidateLayout from '@/layouts/CandidateLayout';
 
@@ -12,10 +12,10 @@ export default function CandidateDashboard() {
                         <h1 className="text-3xl font-bold tracking-tight text-on-surface font-headline">Welcome back</h1>
                         <p className="text-on-surface-variant mt-1 text-sm">Here is what is happening with your job applications.</p>
                     </div>
-                    <button className="bg-surface-container text-on-surface border border-outline-variant hover:bg-surface-bright px-5 py-2.5 rounded font-medium text-sm transition-colors flex items-center gap-2">
+                    <Link href="/jobs" className="bg-surface-container text-on-surface border border-outline-variant hover:bg-surface-bright px-5 py-2.5 rounded font-medium text-sm transition-colors flex items-center gap-2">
                         <span className="material-symbols-outlined text-[20px]">search</span>
                         Find Jobs
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Stats Grid */}

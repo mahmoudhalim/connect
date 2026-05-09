@@ -9,7 +9,27 @@ export default function CandidateLayout({
 }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { auth } = usePage<{ auth: Auth }>().props;
+    const { url } = usePage();
     const user = auth?.user;
+
+    const isActive = (path: string, isExact: boolean = false) => {
+        if (isExact) {
+            return path === url;
+        }
+
+        return url.startsWith(path);
+    };
+
+    const getLinkClasses = (path: string, isExact: boolean = false) => {
+        const activeClasses =
+            'border-violet-400 bg-[#18181b] text-violet-400 font-medium';
+        const inactiveClasses =
+            'border-transparent text-[#a1a1aa] hover:bg-[#0c0c0f] hover:text-[#fafafa]';
+
+        return `flex items-center gap-3 border-l-4 px-4 py-3 transition-transform active:scale-[0.98] ${
+            isActive(path, isExact) ? activeClasses : inactiveClasses
+        }`;
+    };
 
     return (
         <div className="dark flex h-screen overflow-hidden bg-background font-body text-on-background antialiased">
@@ -24,7 +44,7 @@ export default function CandidateLayout({
                     </div>
                     <div>
                         <h1 className="text-lg font-black text-violet-400">
-                        {user?.name || 'Candidate Portal'}
+                            {user?.name || 'Candidate Portal'}
                         </h1>
                         <p className="text-xs text-on-surface-variant">
                             Job Seeker Profile
@@ -36,57 +56,107 @@ export default function CandidateLayout({
                 <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-4">
                     <Link
                         href="/candidate/dashboard"
-                        className="flex items-center gap-3 border-l-4 border-violet-400 bg-[#18181b] px-4 py-3 text-violet-400 transition-transform active:scale-[0.98]"
+                        className={getLinkClasses('/candidate/dashboard')}
                     >
                         <span
                             className="material-symbols-outlined text-[20px]"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
+                            style={{
+                                fontVariationSettings: isActive(
+                                    '/candidate/dashboard',
+                                )
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
                         >
                             dashboard
                         </span>
-                        <span className="font-medium">Dashboard</span>
+                        <span>Dashboard</span>
                     </Link>
                     <Link
-                        href="/candidate/search"
-                        className="flex items-center gap-3 border-l-4 border-transparent px-4 py-3 text-[#a1a1aa] transition-transform hover:bg-[#0c0c0f] hover:text-[#fafafa] active:scale-[0.98]"
+                        href="/jobs"
+                        className={getLinkClasses('/jobs', true)}
                     >
-                        <span className="material-symbols-outlined text-[20px]">
-                            search
+                        <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{
+                                fontVariationSettings: isActive('/jobs', true)
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
+                        >
+                            work
                         </span>
                         <span>Job Search</span>
                     </Link>
                     <Link
                         href="/candidate/applications"
-                        className="flex items-center gap-3 border-l-4 border-transparent px-4 py-3 text-[#a1a1aa] transition-transform hover:bg-[#0c0c0f] hover:text-[#fafafa] active:scale-[0.98]"
+                        className={getLinkClasses('/candidate/applications')}
                     >
-                        <span className="material-symbols-outlined text-[20px]">
+                        <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{
+                                fontVariationSettings: isActive(
+                                    '/candidate/applications',
+                                )
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
+                        >
                             description
                         </span>
                         <span>My Applications</span>
                     </Link>
                     <Link
-                        href="/candidate/saved"
-                        className="flex items-center gap-3 border-l-4 border-transparent px-4 py-3 text-[#a1a1aa] transition-transform hover:bg-[#0c0c0f] hover:text-[#fafafa] active:scale-[0.98]"
+                        href="/candidate/applications"
+                        className={getLinkClasses('/candidate/saved')}
                     >
-                        <span className="material-symbols-outlined text-[20px]">
+                        <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{
+                                fontVariationSettings: isActive(
+                                    '/candidate/saved',
+                                )
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
+                        >
                             bookmark
                         </span>
                         <span>Saved Jobs</span>
                     </Link>
                     <Link
-                        href="/candidate/profile"
-                        className="flex items-center gap-3 border-l-4 border-transparent px-4 py-3 text-[#a1a1aa] transition-transform hover:bg-[#0c0c0f] hover:text-[#fafafa] active:scale-[0.98]"
+                        href="/settings/profile"
+                        className={getLinkClasses('/settings/profile')}
                     >
-                        <span className="material-symbols-outlined text-[20px]">
+                        <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{
+                                fontVariationSettings: isActive(
+                                    '/settings/profile',
+                                )
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
+                        >
                             person
                         </span>
                         <span>Profile</span>
                     </Link>
                     <Link
-                        href="/candidate/settings"
-                        className="flex items-center gap-3 border-l-4 border-transparent px-4 py-3 text-[#a1a1aa] transition-transform hover:bg-[#0c0c0f] hover:text-[#fafafa] active:scale-[0.98]"
+                        href="/settings"
+                        className={getLinkClasses('/settings', true)}
                     >
-                        <span className="material-symbols-outlined text-[20px]">
+                        <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{
+                                fontVariationSettings: isActive(
+                                    '/settings',
+                                    true,
+                                )
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
+                        >
                             settings
                         </span>
                         <span>Settings</span>
@@ -139,9 +209,12 @@ export default function CandidateLayout({
                                 menu
                             </span>
                         </button>
-                        <span className="text-xl font-bold tracking-tighter text-[#fafafa]">
+                        <Link
+                            href="/candidate/dashboard"
+                            className="text-xl font-bold tracking-tighter text-[#fafafa]"
+                        >
                             Obsidian Jobs
-                        </span>
+                        </Link>
                     </div>
                 </header>
 
