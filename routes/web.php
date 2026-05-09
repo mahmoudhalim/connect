@@ -1,12 +1,19 @@
 <?php
 
+use App\Http\Controllers\Candidate\JobApplicationController;
 use App\Http\Controllers\Employer\JobPostingController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
+
+// Public Job Routes
+Route::get('/jobs', [HomeController::class, 'jobs'])->name('jobs.index');
+Route::get('/jobs/search', [HomeController::class, 'search'])->name('jobs.search');
+Route::get('/jobs/{jobPosting}', [HomeController::class, 'show'])->name('jobs.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dynamic dashboard redirect based on role
@@ -30,6 +37,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('/candidate/search', 'test')->name('candidate.search');
 });
 
+// Candidate Routes
+Route::middleware(['auth', 'verified', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
+    Route::get('/applications', [JobApplicationController::class, 'index'])->name('applications.index');
+    Route::post('/applications', [JobApplicationController::class, 'store'])->name('applications.store');
+    Route::get('/applications/{jobApplication}', [JobApplicationController::class, 'show'])->name('applications.show');
+    Route::delete('/applications/{jobApplication}', [JobApplicationController::class, 'destroy'])->name('applications.cancel');
+});
+
 
 // Employer Routes
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
@@ -40,6 +55,4 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::delete('/jobs/{jobPosting}', [JobPostingController::class, 'destroy'])->name('jobs.destroy');
 });
 
-
-
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

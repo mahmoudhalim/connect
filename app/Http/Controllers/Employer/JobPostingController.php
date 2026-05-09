@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Employer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreJobPostingRequest;
 use App\Http\Requests\UpdateJobPostingRequest;
 use App\Models\JobPosting;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class JobPostingController extends Controller
@@ -17,6 +17,7 @@ class JobPostingController extends Controller
     public function index(Request $request)
     {
         $jobs = $request->user()->jobPostings()->paginate(6);
+
         return Inertia::render('employer/jobs/index', compact('jobs'));
     }
 
@@ -34,6 +35,7 @@ class JobPostingController extends Controller
     public function store(StoreJobPostingRequest $request)
     {
         $jobPosting = $request->user()->jobPostings()->create($request->validated());
+
         return redirect()->route('employer.jobs.show', $jobPosting);
     }
 
@@ -42,7 +44,9 @@ class JobPostingController extends Controller
      */
     public function show(JobPosting $jobPosting)
     {
-        dd('you are viewing', $jobPosting);
+        $this->authorize('view', $jobPosting);
+
+        return Inertia::render('employer/jobs/show', compact('jobPosting'));
     }
 
     /**
@@ -50,6 +54,8 @@ class JobPostingController extends Controller
      */
     public function edit(JobPosting $jobPosting)
     {
+        $this->authorize('update', $jobPosting);
+
         return Inertia::render('employer/jobs/edit', compact('jobPosting'));
     }
 
@@ -58,7 +64,10 @@ class JobPostingController extends Controller
      */
     public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting)
     {
+        $this->authorize('update', $jobPosting);
+
         $jobPosting->update($request->validated());
+
         return redirect()->route('employer.jobs.show', $jobPosting)->with('success', 'Job posting updated successfully.');
     }
 
@@ -67,7 +76,10 @@ class JobPostingController extends Controller
      */
     public function destroy(JobPosting $jobPosting)
     {
+        $this->authorize('delete', $jobPosting);
+
         $jobPosting->delete();
+
         return redirect()->route('employer.jobs.index')->with('success', 'Job posting deleted successfully.');
     }
 }
