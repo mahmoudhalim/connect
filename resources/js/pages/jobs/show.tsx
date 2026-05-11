@@ -1,6 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import JobsLayout from '@/layouts/JobsLayout';
 import CandidateLayout from '@/layouts/CandidateLayout';
+import EmployerLayout from '@/layouts/EmployerLayout';
 import JobPostingShow from '@/components/JobPostingShow';
 import type { Auth } from '@/types';
 
@@ -28,6 +29,7 @@ interface Props {
 export default function Show({ job }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const isCandidateUser = auth?.user?.role === 'candidate';
+    const isEmployerUser = auth?.user?.role === 'employer';
     const isAuthenticated = auth?.user !== null && auth?.user !== undefined;
 
     const content = (
@@ -35,7 +37,8 @@ export default function Show({ job }: Props) {
             <Head title={job.title} />
             <JobPostingShow
                 job={job}
-                showApply={isAuthenticated}
+                showApply={isAuthenticated && !isEmployerUser}
+                showApplyButton={isAuthenticated && !isEmployerUser}
                 showLoginPrompt={!isAuthenticated}
                 user={auth?.user}
             />
@@ -44,6 +47,10 @@ export default function Show({ job }: Props) {
 
     if (isCandidateUser) {
         return <CandidateLayout>{content}</CandidateLayout>;
+    }
+
+    if (isEmployerUser) {
+        return <EmployerLayout>{content}</EmployerLayout>;
     }
 
     return <JobsLayout>{content}</JobsLayout>;

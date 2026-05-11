@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Candidate\JobApplicationController;
+use App\Http\Controllers\Employer\ApplicationController;
 use App\Http\Controllers\Employer\JobPostingController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,8 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/jobs/{jobPosting}/edit', [JobPostingController::class, 'edit'])->name('jobs.edit');
     Route::put('/jobs/{jobPosting}', [JobPostingController::class, 'update'])->name('jobs.update');
     Route::delete('/jobs/{jobPosting}', [JobPostingController::class, 'destroy'])->name('jobs.destroy');
+    Route::get('/applicants', [ApplicationController::class, 'index'])->name('applicants.index');
+    Route::patch('/applicants/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applicants.updateStatus');
 });
 
 require __DIR__.'/settings.php';

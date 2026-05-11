@@ -24,6 +24,7 @@ interface Job {
 interface JobPostingShowProps {
     job: Job;
     showApply?: boolean;
+    showApplyButton?: boolean;
     showLoginPrompt?: boolean;
     user?: {
         name: string;
@@ -57,9 +58,11 @@ const getWorkPlaceTypeLabel = (type: string) => {
 export default function JobPostingShow({
     job,
     showApply = false,
+    showApplyButton,
     showLoginPrompt = false,
     user,
 }: JobPostingShowProps) {
+    const shouldShowApplyButton = showApplyButton ?? showApply;
     const [showForm, setShowForm] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -337,12 +340,14 @@ export default function JobPostingShow({
                 <div className="whitespace-pre-wrap text-on-surface-variant">{job.description}</div>
             </div>
 
-            <div className="border-t border-outline-variant pt-6">
-                <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
-                    Apply Now
-                    <span className="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
-                </Button>
-            </div>
+            {shouldShowApplyButton && (
+                <div className="border-t border-outline-variant pt-6">
+                    <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+                        Apply Now
+                        <span className="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }
