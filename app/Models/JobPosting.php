@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['title', 'description', 'employer_id', 'status', 'location', 'employmentType', 'workPlaceType', 'minSalary', 'maxSalary', 'category_id', 'experience_level', 'requirements', 'benefits', 'deadline', 'company_logo'])]
 
@@ -31,5 +32,11 @@ class JobPosting extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(JobApplication::class, 'job_posting_id');
+    }
+
+    public function savedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_jobs', 'job_posting_id', 'user_id')
+            ->withTimestamps();
     }
 }

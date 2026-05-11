@@ -2,7 +2,13 @@ import { Head, Link } from '@inertiajs/react';
 import React from 'react';
 import CandidateLayout from '@/layouts/CandidateLayout';
 
-export default function CandidateDashboard() {
+export default function CandidateDashboard({
+    activeApplicationsCount = 0,
+    savedJobsCount = 0,
+}: {
+    activeApplicationsCount?: number;
+    savedJobsCount?: number;
+}) {
     return (
         <>
             <Head title="Candidate Dashboard" />
@@ -26,7 +32,7 @@ export default function CandidateDashboard() {
                             <span className="material-symbols-outlined text-[20px]">description</span>
                         </div>
                         <div className="flex items-end justify-between">
-                            <span className="text-3xl font-bold text-on-surface">5</span>
+                            <span className="text-3xl font-bold text-on-surface">{activeApplicationsCount}</span>
                         </div>
                     </div>
                     <div className="bg-surface-container border border-outline-variant rounded p-5 flex flex-col justify-between">
@@ -35,7 +41,7 @@ export default function CandidateDashboard() {
                             <span className="material-symbols-outlined text-[20px]">bookmark</span>
                         </div>
                         <div className="flex items-end justify-between">
-                            <span className="text-3xl font-bold text-on-surface">12</span>
+                            <span className="text-3xl font-bold text-on-surface">{savedJobsCount}</span>
                         </div>
                     </div>
                 </div>

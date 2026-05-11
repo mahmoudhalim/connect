@@ -34,11 +34,13 @@ class ProfileController extends Controller
             $profileData['resume_path'] = $resumePath;
         }
 
-        $profile = CandidateProfile::updateOrCreate(
+        CandidateProfile::updateOrCreate(
             ['user_id' => $userId],
             $profileData
         );
 
-        return redirect()->back()->with('success', 'Profile updated successfully.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Profile updated successfully.']);
+
+        return redirect()->back();
     }
 }

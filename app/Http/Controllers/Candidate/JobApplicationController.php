@@ -29,7 +29,7 @@ class JobApplicationController extends Controller
                 ->where('status', 'offer_extended')->count(),
         ];
 
-        return Inertia::render('Candidate/Applications/Index', [
+        return Inertia::render('candidate/applications/index', [
             'applications' => $applications,
             'stats' => $stats,
         ]);
@@ -72,7 +72,7 @@ class JobApplicationController extends Controller
 
         $jobApplication->load('jobPosting.employer');
 
-        return Inertia::render('Candidate/Applications/Show', [
+        return Inertia::render('candidate/applications/show', [
             'application' => $jobApplication,
         ]);
     }
