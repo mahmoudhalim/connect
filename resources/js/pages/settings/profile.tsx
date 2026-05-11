@@ -6,8 +6,9 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
+import React from 'react';
+import SettingsLayout from '@/layouts/settings/layout';
 
 export default function Profile({
     mustVerifyEmail,
@@ -24,7 +25,7 @@ export default function Profile({
 
             <h1 className="sr-only">Profile settings</h1>
 
-            <div className="space-y-6">
+            <div className="rounded-xl border border-outline-variant bg-surface-container p-6 space-y-6">
                 <Heading
                     variant="small"
                     title="Profile information"
@@ -82,12 +83,12 @@ export default function Profile({
                             {mustVerifyEmail &&
                                 auth.user.email_verified_at === null && (
                                     <div>
-                                        <p className="-mt-4 text-sm text-muted-foreground">
+                                        <p className="text-sm text-on-surface-variant">
                                             Your email address is unverified.{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
-                                                className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                                                className="text-primary underline decoration-outline-variant underline-offset-4 transition-colors duration-300 ease-out hover:decoration-primary"
                                             >
                                                 Click here to resend the
                                                 verification email.
@@ -96,7 +97,7 @@ export default function Profile({
 
                                         {status ===
                                             'verification-link-sent' && (
-                                            <div className="mt-2 text-sm font-medium text-green-600">
+                                            <div className="mt-2 text-sm font-medium text-green-500">
                                                 A new verification link has been
                                                 sent to your email address.
                                             </div>
@@ -122,11 +123,4 @@ export default function Profile({
     );
 }
 
-Profile.layout = {
-    breadcrumbs: [
-        {
-            title: 'Profile settings',
-            href: edit(),
-        },
-    ],
-};
+Profile.layout = (page: React.ReactNode) => <SettingsLayout>{page}</SettingsLayout>;

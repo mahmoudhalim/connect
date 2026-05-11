@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Candidate\JobApplicationController;
 use App\Http\Controllers\Candidate\ProfileController;
+use App\Http\Controllers\Candidate\SavedJobController;
 use App\Http\Controllers\Employer\ApplicationController;
+use App\Http\Controllers\Employer\CompanyController;
 use App\Http\Controllers\Employer\CandidateSearchController;
 use App\Http\Controllers\Employer\JobPostingController;
 use App\Http\Controllers\HomeController;
@@ -31,15 +33,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
     })->name('dashboard');
 
-    // Role-specific dashboard routes
-    Route::inertia('/admin/dashboard', 'admin/dashboard')->name('admin.dashboard');
+// Role-specific dashboard routes
     Route::inertia('/employer/dashboard', 'employer/dashboard')->name('employer.dashboard');
-    Route::inertia('/candidate/dashboard', 'candidate/dashboard')->name('candidate.dashboard');
+    Route::get('/candidate/dashboard', function () {
+        $user = auth()->user();
+        return \Inertia\Inertia::render('candidate/dashboard', [
+            'activeApplicationsCount' => $user->applications()->count(),
+            'savedJobsCount' => $user->savedJobs()->count(),
+        ]);
+    })->name('candidate.dashboard');
 
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/moderation', [App\Http\Controllers\Admin\JobApprovalController::class, 'index'])->name('moderation.index');
         Route::patch('/moderation/{jobPosting}/approve', [App\Http\Controllers\Admin\JobApprovalController::class, 'approve'])->name('moderation.approve');
         Route::patch('/moderation/{jobPosting}/reject', [App\Http\Controllers\Admin\JobApprovalController::class, 'reject'])->name('moderation.reject');
+        Route::get('/categories', [App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{category}', [App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::get('/users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('users.index');
     });
 
     // Other specific routes
@@ -54,6 +67,9 @@ Route::middleware(['auth', 'verified', 'role:candidate'])->prefix('candidate')->
     Route::delete('/applications/{jobApplication}', [JobApplicationController::class, 'destroy'])->name('applications.cancel');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/saved', [SavedJobController::class, 'index'])->name('saved.index');
+    Route::post('/saved/{jobPosting}', [SavedJobController::class, 'store'])->name('saved.store');
+    Route::delete('/saved/{jobPosting}', [SavedJobController::class, 'destroy'])->name('saved.destroy');
 });
 
 
@@ -65,9 +81,12 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::put('/jobs/{jobPosting}', [JobPostingController::class, 'update'])->name('jobs.update');
     Route::delete('/jobs/{jobPosting}', [JobPostingController::class, 'destroy'])->name('jobs.destroy');
     Route::get('/applicants', [ApplicationController::class, 'index'])->name('applicants.index');
+    Route::get('/applicants/{application}', [ApplicationController::class, 'show'])->name('applicants.show');
     Route::patch('/applicants/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applicants.updateStatus');
     Route::get('/candidates', [CandidateSearchController::class, 'index'])->name('candidates.index');
     Route::get('/candidates/{candidate}', [CandidateSearchController::class, 'show'])->name('candidates.show');
+    Route::get('/company', [CompanyController::class, 'edit'])->name('company.edit');
+    Route::patch('/company', [CompanyController::class, 'update'])->name('company.update');
 });
 
 require __DIR__.'/settings.php';

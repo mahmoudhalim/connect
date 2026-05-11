@@ -107,7 +107,7 @@ export default function CandidateLayout({
                         <span>My Applications</span>
                     </Link>
                     <Link
-                        href="/candidate/applications"
+                        href="/candidate/saved"
                         className={getLinkClasses('/candidate/saved')}
                     >
                         <span
@@ -143,15 +143,14 @@ export default function CandidateLayout({
                         <span>Profile</span>
                     </Link>
                     <Link
-                        href="/settings"
-                        className={getLinkClasses('/settings', true)}
+                        href="/settings/profile"
+                        className={getLinkClasses('/settings/profile')}
                     >
                         <span
                             className="material-symbols-outlined text-[20px]"
                             style={{
                                 fontVariationSettings: isActive(
-                                    '/settings',
-                                    true,
+                                    '/settings/profile',
                                 )
                                     ? "'FILL' 1"
                                     : "'FILL' 0",
@@ -165,15 +164,6 @@ export default function CandidateLayout({
 
                 {/* Footer Navigation */}
                 <div className="mt-auto flex flex-col gap-1 border-t border-outline-variant p-4">
-                    <Link
-                        href="/help"
-                        className="flex items-center gap-3 rounded-lg px-4 py-3 text-[#a1a1aa] transition-colors hover:bg-[#0c0c0f] hover:text-[#fafafa]"
-                    >
-                        <span className="material-symbols-outlined text-[20px]">
-                            help
-                        </span>
-                        <span>Help Center</span>
-                    </Link>
                     <Link
                         href="/logout"
                         method="post"

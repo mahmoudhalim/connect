@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
@@ -8,9 +9,10 @@ import PasswordInput from '@/components/password-input';
 import TwoFactorRecoveryCodes from '@/components/two-factor-recovery-codes';
 import TwoFactorSetupModal from '@/components/two-factor-setup-modal';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import SettingsLayout from '@/layouts/settings/layout';
 import { useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
-import { edit } from '@/routes/security';
 import { disable, enable } from '@/routes/two-factor';
 
 type Props = {
@@ -55,7 +57,7 @@ export default function Security({
 
             <h1 className="sr-only">Security settings</h1>
 
-            <div className="space-y-6">
+            <div className="rounded-xl border border-outline-variant bg-surface-container p-6 space-y-6">
                 <Heading
                     variant="small"
                     title="Update password"
@@ -149,8 +151,8 @@ export default function Security({
                 </Form>
             </div>
 
-            {canManageTwoFactor && (
-                <div className="space-y-6">
+                    {canManageTwoFactor && (
+                <div className="rounded-xl border border-outline-variant bg-surface-container p-6 space-y-6">
                     <Heading
                         variant="small"
                         title="Two-factor authentication"
@@ -158,7 +160,7 @@ export default function Security({
                     />
                     {twoFactorEnabled ? (
                         <div className="flex flex-col items-start justify-start space-y-4">
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-on-surface-variant">
                                 You will be prompted for a secure, random pin
                                 during login, which you can retrieve from the
                                 TOTP-supported application on your phone.
@@ -186,7 +188,7 @@ export default function Security({
                         </div>
                     ) : (
                         <div className="flex flex-col items-start justify-start space-y-4">
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-on-surface-variant">
                                 When you enable two-factor authentication, you
                                 will be prompted for a secure pin during login.
                                 This pin can be retrieved from a TOTP-supported
@@ -239,11 +241,4 @@ export default function Security({
     );
 }
 
-Security.layout = {
-    breadcrumbs: [
-        {
-            title: 'Security settings',
-            href: edit(),
-        },
-    ],
-};
+Security.layout = (page: React.ReactNode) => <SettingsLayout>{page}</SettingsLayout>;

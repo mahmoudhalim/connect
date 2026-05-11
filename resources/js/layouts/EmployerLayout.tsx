@@ -164,14 +164,14 @@ export default function EmployerLayout({
                         <span>Company Profile</span>
                     </Link>
                     <Link
-                        href="/employer/settings"
-                        className={getLinkClasses('/employer/settings')}
+                        href="/settings/profile"
+                        className={getLinkClasses('/settings/profile')}
                     >
                         <span
                             className="material-symbols-outlined text-[20px]"
                             style={{
                                 fontVariationSettings: isActive(
-                                    '/employer/settings',
+                                    '/settings/profile',
                                 )
                                     ? "'FILL' 1"
                                     : "'FILL' 0",
@@ -185,18 +185,6 @@ export default function EmployerLayout({
 
                 {/* Footer Navigation */}
                 <div className="flex flex-col gap-2 border-t border-outline-variant p-4">
-                    <button className="mb-2 w-full rounded border border-outline-variant px-4 py-2 text-sm text-on-surface transition-colors hover:bg-surface-bright">
-                        Switch Role
-                    </button>
-                    <Link
-                        href="/help"
-                        className="flex items-center gap-3 px-2 py-2 text-xs text-on-surface-variant transition-colors hover:text-on-surface"
-                    >
-                        <span className="material-symbols-outlined text-[18px]">
-                            help
-                        </span>
-                        Help Center
-                    </Link>
                     <Link
                         href="/logout"
                         method="post"
