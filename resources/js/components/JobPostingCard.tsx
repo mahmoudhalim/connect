@@ -12,13 +12,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
 
-function DeleteButton({ id }: { id: number }) {
+function DeleteButton({ id, onClick }: { id: number; onClick?: () => void }) {
     const [open, setOpen] = useState(false);
     const { delete: destroy, processing } = useForm();
 
     const handleDelete = () => {
         destroy(`/employer/jobs/${id}`, {
-            onSuccess: () => setOpen(false),
+            onSuccess: () => {
+                setOpen(false);
+                onClick?.();
+            },
         });
     };
 
@@ -75,6 +78,7 @@ export interface JobPostingCardProps {
     daysActive?: number;
     isNew?: boolean;
     created_at?: string;
+    canEdit?: boolean;
 }
 
 export default function JobPostingCard({
@@ -87,6 +91,7 @@ export default function JobPostingCard({
     daysActive = 2,
     isNew = true,
     created_at,
+    canEdit = false,
 }: JobPostingCardProps) {
     const postedDate = created_at ? formatDate(created_at) : 'Oct 22, 2023';
     // Helper to determine status color styling
@@ -116,8 +121,15 @@ export default function JobPostingCard({
         }
     };
 
+    const handleActionClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
     return (
-        <div className="group relative flex flex-col overflow-hidden rounded-lg border border-outline-variant bg-surface-container transition-colors duration-200 hover:border-primary/50">
+        <Link
+            href={`/jobs/${id}`}
+            className="group relative flex flex-col overflow-hidden rounded-lg border border-outline-variant bg-surface-container transition-colors duration-200 hover:border-primary/50"
+        >
             {/* Top Indicator Bar */}
             <div className={`h-1 w-full ${getStatusDotColor()}`}></div>
 
@@ -132,7 +144,10 @@ export default function JobPostingCard({
                         ></span>
                         {status}
                     </span>
-                    <button className="rounded p-1 text-on-secondary-container transition-colors hover:bg-surface-container-highest hover:text-on-surface">
+                    <button
+                        className="rounded p-1 text-on-secondary-container transition-colors hover:bg-surface-container-highest hover:text-on-surface"
+                        onClick={handleActionClick}
+                    >
                         <span
                             className="material-symbols-outlined text-[20px]"
                             data-icon="more_vert"
@@ -196,29 +211,36 @@ export default function JobPostingCard({
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between border-t border-outline-variant bg-surface-container-highest px-5 py-3">
+            <div
+                className="flex items-center justify-between border-t border-outline-variant bg-surface-container-highest px-5 py-3"
+                onClick={handleActionClick}
+            >
                 <div className="text-xs text-on-secondary-container">
                     Posted {postedDate}
                 </div>
                 <div className="flex gap-2">
-                    <Link
-                        href={`/employer/jobs/${id}/edit`}
-                        className="rounded p-1.5 text-on-secondary-container transition-colors hover:bg-primary/10 hover:text-primary"
-                        title="Edit"
-                    >
-                        <span
-                            className="material-symbols-outlined mt-0.5 text-[18px]"
-                            data-icon="edit"
-                        >
-                            edit_square
-                        </span>
-                    </Link>
-                    <DeleteButton id={id} />
+                    {canEdit && (
+                        <>
+                            <Link
+                                href={`/employer/jobs/${id}/edit`}
+                                className="rounded p-1.5 text-on-secondary-container transition-colors hover:bg-primary/10 hover:text-primary"
+                                title="Edit"
+                            >
+                                <span
+                                    className="material-symbols-outlined mt-0.5 text-[18px]"
+                                    data-icon="edit"
+                                >
+                                    edit_square
+                                </span>
+                            </Link>
+                            <DeleteButton id={id} />
+                        </>
+                    )}
                     <button className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-inverse-on-surface transition-colors duration-150 hover:bg-primary-fixed-dim active:scale-95">
                         View Applicants
                     </button>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

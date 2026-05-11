@@ -37,6 +37,7 @@ export default function Show({ job }: Props) {
                 job={job}
                 showApply={isAuthenticated}
                 showLoginPrompt={!isAuthenticated}
+                user={auth?.user}
             />
         </>
     );
