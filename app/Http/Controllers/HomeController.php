@@ -10,6 +10,17 @@ class HomeController extends Controller
 {
     public function jobs(Request $request)
     {
+        $filters = $request->only([
+            'search',
+            'location',
+            'employmentType',
+            'workPlaceType',
+            'minSalary',
+        ]);
+        $filters = array_filter($filters, function ($value) {
+            return $value !== null && $value !== '';
+        });
+
         $jobs = JobPosting::with('employer')
             ->when($request->search, function ($query) use ($request) {
                 $query->where('title', 'like', "%{$request->search}%")
@@ -24,18 +35,18 @@ class HomeController extends Controller
             ->when($request->workPlaceType, function ($query) use ($request) {
                 $query->where('workPlaceType', $request->workPlaceType);
             })
-            ->when($request->minSalary, function ($query) use ($request) {
+->when($request->minSalary, function ($query) use ($request) {
                 $query->where('maxSalary', '>=', $request->minSalary);
             })
-            ->when($request->maxSalary, function ($query) use ($request) {
-                $query->where('minSalary', '<=', $request->maxSalary);
-            })
+            
             ->where('status', 'active')
             ->latest()
-            ->paginate(12);
+            ->paginate(12)
+            ->appends($filters);
 
         return Inertia::render('jobs/index', [
             'jobs' => $jobs,
+            'filters' => $filters,
         ]);
     }
 
