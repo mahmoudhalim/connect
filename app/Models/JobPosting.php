@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['title', 'description', 'employer_id', 'status', 'location', 'employmentType', 'workPlaceType', 'minSalary', 'maxSalary'])]
+#[Fillable(['title', 'description', 'employer_id', 'status', 'location', 'employmentType', 'workPlaceType', 'minSalary', 'maxSalary', 'category_id', 'experience_level', 'requirements', 'benefits', 'deadline', 'company_logo'])]
 
 class JobPosting extends Model
 {
@@ -21,6 +21,11 @@ class JobPosting extends Model
     public function employer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'employer_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function applications(): HasMany

@@ -31,6 +31,12 @@ class UpdateJobPostingRequest extends FormRequest
             'minSalary' => 'required|numeric|lt:maxSalary',
             'maxSalary' => 'required|numeric|gt:minSalary',
             'status' => 'nullable|in:pending,active,closed',
+            'category_id' => 'nullable|exists:categories,id',
+            'experience_level' => 'nullable|in:entry,mid,senior,lead,executive',
+            'requirements' => 'nullable|string|max:1023',
+            'benefits' => 'nullable|string|max:1023',
+            'deadline' => 'nullable|date',
+            'company_logo' => 'nullable|image|max:2048',
         ];
     }
 }
