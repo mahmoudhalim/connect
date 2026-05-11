@@ -125,14 +125,14 @@ export default function CandidateLayout({
                         <span>Saved Jobs</span>
                     </Link>
                     <Link
-                        href="/settings/profile"
-                        className={getLinkClasses('/settings/profile')}
+                        href="/candidate/profile"
+                        className={getLinkClasses('/candidate/profile')}
                     >
                         <span
                             className="material-symbols-outlined text-[20px]"
                             style={{
                                 fontVariationSettings: isActive(
-                                    '/settings/profile',
+                                    '/candidate/profile',
                                 )
                                     ? "'FILL' 1"
                                     : "'FILL' 0",
