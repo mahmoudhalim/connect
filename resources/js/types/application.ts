@@ -15,15 +15,34 @@ export interface JobPosting {
     created_at?: string;
 }
 
+export interface CandidateProfile {
+    id?: number;
+    headline?: string;
+    bio?: string;
+    location?: string;
+    phone?: string;
+    portfolio_url?: string;
+    linkedin_url?: string;
+    resume_path?: string;
+    experience_years?: number;
+    education?: string;
+    skills?: string[];
+}
+
 export interface Candidate {
     id: number;
     name: string;
     email: string;
+    candidate_profile?: CandidateProfile | null;
 }
 
 export interface Application {
     id: number;
     status: string;
+    resume_path?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    portfolio_url?: string;
     created_at: string;
     job_posting: JobPosting;
     candidate: Candidate;

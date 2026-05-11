@@ -30,9 +30,10 @@ interface Job {
 
 interface Props {
     job: Job;
+    isSaved?: boolean;
 }
 
-export default function Show({ job }: Props) {
+export default function Show({ job, isSaved = false }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const isCandidateUser = auth?.user?.role === 'candidate';
     const isEmployerUser = auth?.user?.role === 'employer';
@@ -43,6 +44,7 @@ export default function Show({ job }: Props) {
             <Head title={job.title} />
             <JobPostingShow
                 job={job}
+                isSaved={isSaved}
                 showApply={isAuthenticated && !isEmployerUser}
                 showApplyButton={isAuthenticated && !isEmployerUser}
                 showLoginPrompt={!isAuthenticated}

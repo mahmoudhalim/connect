@@ -76,10 +76,15 @@ class HomeController extends Controller
 
     public function show(JobPosting $jobPosting)
     {
-        $jobPosting->load(['employer', 'category']);
+        $jobPosting->load(['employer.companyProfile', 'category']);
+
+        $isSaved = auth()->check()
+            ? auth()->user()->savedJobs()->where('job_posting_id', $jobPosting->id)->exists()
+            : false;
 
         return Inertia::render('jobs/show', [
             'job' => $jobPosting,
+            'isSaved' => $isSaved,
         ]);
     }
 }

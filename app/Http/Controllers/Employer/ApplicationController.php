@@ -48,7 +48,7 @@ class ApplicationController extends Controller
             ->select('id', 'title')
             ->get();
 
-        return Inertia::render('Employer/Applications/Index', [
+        return Inertia::render('employer/applications/index', [
             'applications' => $applications,
             'stats' => $stats,
             'jobPostings' => $jobPostings,
@@ -65,5 +65,19 @@ class ApplicationController extends Controller
         $application->update(['status' => $request->status]);
 
         return back()->with('success', 'Status updated successfully');
+    }
+
+    public function show(JobApplication $application)
+    {
+        $user = request()->user();
+        $jobPostingIds = JobPosting::where('employer_id', $user->id)->pluck('id');
+
+        abort_unless($jobPostingIds->contains($application->job_posting_id), 403);
+
+        $application->load(['jobPosting', 'candidate.candidateProfile']);
+
+        return Inertia::render('employer/applications/show', [
+            'application' => $application,
+        ]);
     }
 }

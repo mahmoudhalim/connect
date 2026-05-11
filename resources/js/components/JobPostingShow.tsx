@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,16 @@ interface Job {
     employer: {
         id: number;
         name: string;
+        company_profile?: {
+            company_name?: string;
+            company_logo?: string;
+            company_description?: string;
+            website?: string;
+            company_size?: string;
+            industry?: string;
+            location?: string;
+            founded_year?: number;
+        } | null;
     };
     created_at: string;
 }
@@ -34,6 +44,7 @@ interface JobPostingShowProps {
     showApplyButton?: boolean;
     showLoginPrompt?: boolean;
     user?: { name: string; email: string };
+    isSaved?: boolean;
 }
 
 const formatSalary = (min: number, max: number) => `$${min.toLocaleString()} - $${max.toLocaleString()}`;
@@ -52,10 +63,24 @@ const getExperienceLabel = (level: string) => {
     return labels[level] || level || 'Any';
 };
 
-export default function JobPostingShow({ job, showApply = false, showApplyButton, showLoginPrompt = false, user }: JobPostingShowProps) {
+export default function JobPostingShow({ job, showApply = false, showApplyButton, showLoginPrompt = false, user, isSaved = false }: JobPostingShowProps) {
     const shouldShowApplyButton = showApplyButton ?? showApply;
     const [showForm, setShowForm] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    const toggleSave = () => {
+        setSaving(true);
+        if (isSaved) {
+            router.delete(`/candidate/saved/${job.id}`, {
+                onFinish: () => setSaving(false),
+            });
+        } else {
+            router.post(`/candidate/saved/${job.id}`, {}, {
+                onFinish: () => setSaving(false),
+            });
+        }
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         job_posting_id: job.id,
@@ -226,8 +251,12 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                                 Apply Now <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
                             </Button>
                         )}
-                        <button className="w-full bg-transparent hover:bg-surface-variant text-on-surface border border-outline-variant font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <span className="material-symbols-outlined text-[20px]">bookmark_add</span> Save for Later
+                        <button
+                            onClick={toggleSave}
+                            disabled={saving}
+                            className="w-full bg-transparent hover:bg-surface-variant text-on-surface border border-outline-variant font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">{isSaved ? 'bookmark' : 'bookmark_add'}</span> {isSaved ? 'Saved' : 'Save for Later'}
                         </button>
                     </div>
                     <p className="text-xs text-on-surface-variant text-center font-medium">Over 100 applicants. Apply soon.</p>
@@ -249,18 +278,28 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                             </button>
                         </div>
                     </div>
-                    <p className="text-sm text-on-surface-variant leading-relaxed">A leading tech company building the future of web development.</p>
+                    <p className="text-sm text-on-surface-variant leading-relaxed">{job.employer.company_profile?.company_description || ''}</p>
                     <div className="space-y-2 pt-2 border-t border-outline-variant">
+                        {job.employer.company_profile?.website && (
+                            <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span className="material-symbols-outlined text-[16px]">public</span>
+                                <a className="hover:text-primary transition-colors truncate" href={job.employer.company_profile.website} target="_blank" rel="noopener noreferrer">{job.employer.company_profile.website.replace(/^https?:\/\//, '')}</a>
+                            </div>
+                        )}
+                        {job.employer.company_profile?.company_size && (
+                            <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span className="material-symbols-outlined text-[16px]">group</span>
+                                <span>{job.employer.company_profile.company_size} employees</span>
+                            </div>
+                        )}
+                        {job.employer.company_profile?.industry && (
+                            <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span className="material-symbols-outlined text-[16px]">domain</span>
+                                <span>{job.employer.company_profile.industry}</span>
+                            </div>
+                        )}
                         <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                            <span className="material-symbols-outlined text-[16px]">public</span>
-                            <a className="hover:text-primary transition-colors" href="#">vercel.com</a>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                            <span className="material-symbols-outlined text-[16px]">group</span>
-                            <span>500 - 1,000 Employees</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                            <span className="material-symbols-outlined text-[16px]">domain</span>
+                            <span className="material-symbols-outlined text-[16px]">location_on</span>
                             <span>{job.location}</span>
                         </div>
                     </div>
