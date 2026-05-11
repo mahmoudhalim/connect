@@ -3,7 +3,7 @@ import React from 'react';
 import EmployerLayout from '@/layouts/EmployerLayout';
 import JobForm from '@/components/JobForm';
 
-export default function CreateJob() {
+export default function CreateJob({ categories }: { categories: { id: number; name: string; slug: string; icon: string | null }[] }) {
     return (
         <>
             <Head title="Post a Job" />
@@ -20,6 +20,7 @@ export default function CreateJob() {
                 </div>
                 
                 <JobForm 
+                    categories={categories}
                     action="/employer/jobs"
                     method="post"
                     submitText="Publish Listing"

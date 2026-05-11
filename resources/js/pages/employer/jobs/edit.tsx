@@ -3,11 +3,9 @@ import React from 'react';
 import JobForm from '@/components/JobForm';
 import EmployerLayout from '@/layouts/EmployerLayout';
 
-interface EditJobProps {
-    jobPosting: any;
-}
 
-export default function EditJob({ jobPosting }: EditJobProps) {
+
+export default function EditJob({ jobPosting, categories }: { jobPosting: any; categories: { id: number; name: string; slug: string; icon: string | null }[] }) {
     return (
         <>
             <Head title={`Edit Job: ${jobPosting.title}`} />
@@ -25,6 +23,7 @@ export default function EditJob({ jobPosting }: EditJobProps) {
 
                 <JobForm
                     job={jobPosting}
+                    categories={categories}
                     action={`/employer/jobs/${jobPosting.id}`}
                     method="put"
                     submitText="Update Listing"

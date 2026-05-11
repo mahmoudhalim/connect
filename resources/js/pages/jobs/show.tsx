@@ -14,7 +14,13 @@ interface Job {
     minSalary: number;
     maxSalary: number;
     description: string;
+    requirements?: string;
+    benefits?: string;
+    deadline?: string;
     status: string;
+    experience_level?: string;
+    company_logo?: string;
+    category?: { name: string } | null;
     employer: {
         id: number;
         name: string;
