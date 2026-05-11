@@ -1,7 +1,6 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
@@ -11,6 +10,7 @@ interface FileInputProps {
     label?: string
     hint?: string
     value?: string
+    showPreview?: boolean
     onValueChange?: (preview: string) => void
     errors?: Record<string, string>
 }
@@ -21,22 +21,30 @@ function FileInput({
     label,
     hint,
     value,
+    showPreview = true,
     onValueChange,
     errors,
 }: FileInputProps) {
     const [preview, setPreview] = React.useState<string>(value || "")
+    const [fileName, setFileName] = React.useState<string>("")
     const [isDragging, setIsDragging] = React.useState(false)
     const inputRef = React.useRef<HTMLInputElement>(null)
 
+    const isImage = accept?.startsWith("image/")
+
     const handleFile = (file: File) => {
-        if (!file.type.startsWith("image/")) return
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            const result = e.target?.result as string
-            setPreview(result)
-            onValueChange?.(result)
+        if (isImage) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                const result = e.target?.result as string
+                setPreview(result)
+                onValueChange?.(result)
+            }
+            reader.readAsDataURL(file)
+        } else {
+            setFileName(file.name)
+            setPreview(file.name)
         }
-        reader.readAsDataURL(file)
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +71,7 @@ function FileInput({
 
     const clear = () => {
         setPreview("")
+        setFileName("")
         if (inputRef.current) inputRef.current.value = ""
         onValueChange?.("")
     }
@@ -89,24 +98,46 @@ function FileInput({
                 )}
             >
                 {preview ? (
-                    <div className="flex flex-col items-center gap-4">
-                        <img
-                            src={preview}
-                            alt="Preview"
-                            className="h-24 w-24 rounded-lg object-cover border border-outline-variant"
-                        />
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                clear()
-                            }}
-                        >
-                            Remove
-                        </Button>
-                    </div>
+                    showPreview && isImage ? (
+                        <div className="flex flex-col items-center gap-4">
+                            <img
+                                src={preview}
+                                alt="Preview"
+                                className="h-24 w-24 rounded-lg object-cover border border-outline-variant"
+                            />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    clear()
+                                }}
+                            >
+                                Remove
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-3">
+                            <span className="material-symbols-outlined text-3xl text-on-surface-variant">
+                                {isImage ? "image" : "description"}
+                            </span>
+                            <p className="text-sm text-on-surface font-medium truncate max-w-full px-2">
+                                {fileName || preview}
+                            </p>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    clear()
+                                }}
+                            >
+                                Remove
+                            </Button>
+                        </div>
+                    )
                 ) : (
                     <>
                         <span className="material-symbols-outlined text-3xl text-on-surface-variant mb-2">

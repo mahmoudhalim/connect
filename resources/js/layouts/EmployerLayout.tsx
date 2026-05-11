@@ -128,6 +128,24 @@ export default function EmployerLayout({
                         <span>Applicants</span>
                     </Link>
                     <Link
+                        href="/employer/candidates"
+                        className={getLinkClasses('/employer/candidates')}
+                    >
+                        <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{
+                                fontVariationSettings: isActive(
+                                    '/employer/candidates',
+                                )
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
+                        >
+                            person_search
+                        </span>
+                        <span>Candidate Search</span>
+                    </Link>
+                    <Link
                         href="/employer/company"
                         className={getLinkClasses('/employer/company')}
                     >

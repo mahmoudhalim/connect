@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Candidate\JobApplicationController;
+use App\Http\Controllers\Candidate\ProfileController;
 use App\Http\Controllers\Employer\ApplicationController;
+use App\Http\Controllers\Employer\CandidateSearchController;
 use App\Http\Controllers\Employer\JobPostingController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +52,8 @@ Route::middleware(['auth', 'verified', 'role:candidate'])->prefix('candidate')->
     Route::post('/applications', [JobApplicationController::class, 'store'])->name('applications.store');
     Route::get('/applications/{jobApplication}', [JobApplicationController::class, 'show'])->name('applications.show');
     Route::delete('/applications/{jobApplication}', [JobApplicationController::class, 'destroy'])->name('applications.cancel');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 
@@ -62,6 +66,8 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::delete('/jobs/{jobPosting}', [JobPostingController::class, 'destroy'])->name('jobs.destroy');
     Route::get('/applicants', [ApplicationController::class, 'index'])->name('applicants.index');
     Route::patch('/applicants/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applicants.updateStatus');
+    Route::get('/candidates', [CandidateSearchController::class, 'index'])->name('candidates.index');
+    Route::get('/candidates/{candidate}', [CandidateSearchController::class, 'show'])->name('candidates.show');
 });
 
 require __DIR__.'/settings.php';
