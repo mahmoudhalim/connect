@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'resume_path',
     'contact_email',
     'contact_phone',
+    'portfolio_url',
     'status',
 ])]
 class JobApplication extends Model

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('applications', function (Blueprint $table) {
             $table->string('portfolio_url')->nullable()->after('resume_path');
-            $table->text('cover_letter')->nullable()->after('portfolio_url');
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('applications', function (Blueprint $table) {
-            $table->dropColumn(['portfolio_url', 'cover_letter']);
+            $table->dropColumn('portfolio_url');
         });
     }
 };

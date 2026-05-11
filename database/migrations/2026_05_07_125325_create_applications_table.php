@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string('contact_email')->nullable();
             $table->string('contact_phone')->nullable();
 
-            $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->enum('status', ['under_review', 'interviewing', 'offer_extended', 'rejected', 'withdrawn'])->default('under_review');
 
             $table->timestamps();
 
