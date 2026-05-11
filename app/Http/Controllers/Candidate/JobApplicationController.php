@@ -12,13 +12,24 @@ class JobApplicationController extends Controller
 {
     public function index()
     {
-        $applications = JobApplication::with('jobPosting')
-            ->where('user_id', auth()->id())
+        $userId = auth()->id();
+
+        $applications = JobApplication::with('jobPosting.employer')
+            ->where('user_id', $userId)
             ->latest()
-            ->paginate(10);
+            ->paginate(12);
+
+        $stats = [
+            'total' => JobApplication::where('user_id', $userId)->count(),
+            'interviewing' => JobApplication::where('user_id', $userId)
+                ->where('status', 'interviewing')->count(),
+            'offers' => JobApplication::where('user_id', $userId)
+                ->where('status', 'offer_extended')->count(),
+        ];
 
         return Inertia::render('Candidate/Applications/Index', [
             'applications' => $applications,
+            'stats' => $stats,
         ]);
     }
 
@@ -46,7 +57,7 @@ class JobApplicationController extends Controller
             'contact_email' => $request->contact_email,
             'contact_phone' => $request->contact_phone,
             'portfolio_url' => $request->portfolio_url,
-            'status' => 'pending',
+            'status' => 'under_review',
         ]);
 
         return redirect()->route('candidate.applications.index')
