@@ -16,9 +16,47 @@ class JobPostingController extends Controller
      */
     public function index(Request $request)
     {
-        $jobs = $request->user()->jobPostings()->paginate(6);
+        $filters = $request->only([
+            'search',
+            'location',
+            'employmentType',
+            'workPlaceType',
+            'minSalary',
+            'status',
+        ]);
+        $filters = array_filter($filters, function ($value) {
+            return $value !== null && $value !== '';
+        });
 
-        return Inertia::render('employer/jobs/index', compact('jobs'));
+        $jobs = $request->user()->jobPostings()
+            ->when($request->search, function ($query) use ($request) {
+                $query->where('title', 'like', "%{$request->search}%")
+                    ->orWhere('description', 'like', "%{$request->search}%");
+            })
+            ->when($request->location, function ($query) use ($request) {
+                $query->where('location', 'like', "%{$request->location}%");
+            })
+            ->when($request->employmentType, function ($query) use ($request) {
+                $query->where('employmentType', $request->employmentType);
+            })
+            ->when($request->workPlaceType, function ($query) use ($request) {
+                $query->where('workPlaceType', $request->workPlaceType);
+            })
+            ->when($request->minSalary, function ($query) use ($request) {
+                $query->where('maxSalary', '>=', $request->minSalary);
+            })
+            
+            ->when($request->status, function ($query) use ($request) {
+                $query->where('status', $request->status);
+            })
+            ->latest()
+            ->paginate(6)
+            ->appends($filters);
+
+        return Inertia::render('employer/jobs/index', [
+            'jobs' => $jobs,
+            'filters' => $filters,
+        ]);
     }
 
     /**
