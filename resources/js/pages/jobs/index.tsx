@@ -31,6 +31,19 @@ interface JobData {
         name: string;
     };
     created_at: string;
+    category?: {
+        id: number;
+        name: string;
+        icon: string;
+    };
+    experience_level?: string;
+}
+
+interface Category {
+    id: number;
+    name: string;
+    slug: string;
+    icon: string;
 }
 
 interface Filters {
@@ -39,11 +52,16 @@ interface Filters {
     employmentType?: string;
     workPlaceType?: string;
     minSalary?: number | string;
+    maxSalary?: number | string;
+    category_id?: number | string;
+    experience_level?: string;
+    datePosted?: string;
 }
 
 interface Props {
     jobs: PaginatedData<JobData>;
     filters?: Filters;
+    categories?: Category[];
 }
 
 function mapJobToCardProps(job: JobData): JobPostingCardProps {
@@ -57,7 +75,7 @@ function mapJobToCardProps(job: JobData): JobPostingCardProps {
     };
 }
 
-export default function Index({ jobs, filters }: Props) {
+export default function Index({ jobs, filters, categories }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const isCandidateUser = auth?.user?.role === 'candidate';
     const [search, setSearch] = useState(filters?.search ?? '');
@@ -69,6 +87,16 @@ export default function Index({ jobs, filters }: Props) {
         filters?.workPlaceType ?? 'all',
     );
     const [minSalary, setMinSalary] = useState(filters?.minSalary ?? '');
+    const [maxSalary, setMaxSalary] = useState(filters?.maxSalary ?? '');
+    const [categoryId, setCategoryId] = useState<number | string>(
+        filters?.category_id ?? 'all',
+    );
+    const [experienceLevel, setExperienceLevel] = useState(
+        filters?.experience_level ?? 'all',
+    );
+    const [datePosted, setDatePosted] = useState(
+        filters?.datePosted ?? 'all',
+    );
 
     const activeFilterCount = useMemo(() => {
         return [
@@ -77,6 +105,10 @@ export default function Index({ jobs, filters }: Props) {
             employmentType !== 'all' ? employmentType : '',
             workPlaceType !== 'all' ? workPlaceType : '',
             minSalary,
+            maxSalary,
+            categoryId !== 'all' ? categoryId : '',
+            experienceLevel !== 'all' ? experienceLevel : '',
+            datePosted !== 'all' ? datePosted : '',
         ].filter((value) => String(value || '').trim().length > 0).length;
     }, [
         search,
@@ -84,6 +116,10 @@ export default function Index({ jobs, filters }: Props) {
         employmentType,
         workPlaceType,
         minSalary,
+        maxSalary,
+        categoryId,
+        experienceLevel,
+        datePosted,
     ]);
 
     const applyFilters = () => {
@@ -104,6 +140,18 @@ export default function Index({ jobs, filters }: Props) {
         if (minSalary) {
             params.minSalary = String(minSalary);
         }
+        if (maxSalary) {
+            params.maxSalary = String(maxSalary);
+        }
+        if (categoryId !== 'all') {
+            params.category_id = String(categoryId);
+        }
+        if (experienceLevel !== 'all') {
+            params.experience_level = experienceLevel;
+        }
+        if (datePosted !== 'all') {
+            params.datePosted = datePosted;
+        }
 
         router.get('/jobs', params, {
             preserveState: true,
@@ -117,6 +165,10 @@ export default function Index({ jobs, filters }: Props) {
         setEmploymentType('all');
         setWorkPlaceType('all');
         setMinSalary('');
+        setMaxSalary('');
+        setCategoryId('all');
+        setExperienceLevel('all');
+        setDatePosted('all');
         router.get('/jobs', {}, { preserveState: true, replace: true });
     };
 
@@ -148,7 +200,7 @@ export default function Index({ jobs, filters }: Props) {
                             </div>
                         )}
                     </div>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <div className="lg:col-span-2">
                             <label className="mb-1 block text-xs font-semibold text-secondary">
                                 Role or keywords
@@ -174,6 +226,27 @@ export default function Index({ jobs, filters }: Props) {
                                 placeholder="City or country"
                                 className="bg-surface-container-lowest"
                             />
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-semibold text-secondary">
+                                Category
+                            </label>
+                            <Select
+                                value={String(categoryId)}
+                                onValueChange={setCategoryId}
+                            >
+                                <SelectTrigger className="w-full bg-surface-container-lowest">
+                                    <SelectValue placeholder="All categories" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All categories</SelectItem>
+                                    {categories?.map((cat) => (
+                                        <SelectItem key={cat.id} value={String(cat.id)}>
+                                            {cat.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-semibold text-secondary">
@@ -216,6 +289,46 @@ export default function Index({ jobs, filters }: Props) {
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-semibold text-secondary">
+                                Experience level
+                            </label>
+                            <Select
+                                value={experienceLevel}
+                                onValueChange={setExperienceLevel}
+                            >
+                                <SelectTrigger className="w-full bg-surface-container-lowest">
+                                    <SelectValue placeholder="Any" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Any</SelectItem>
+                                    <SelectItem value="entry">Entry</SelectItem>
+                                    <SelectItem value="mid">Mid</SelectItem>
+                                    <SelectItem value="senior">Senior</SelectItem>
+                                    <SelectItem value="lead">Lead</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-semibold text-secondary">
+                                Date posted
+                            </label>
+                            <Select
+                                value={datePosted}
+                                onValueChange={setDatePosted}
+                            >
+                                <SelectTrigger className="w-full bg-surface-container-lowest">
+                                    <SelectValue placeholder="Any time" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Any time</SelectItem>
+                                    <SelectItem value="1">Last 24 hours</SelectItem>
+                                    <SelectItem value="7">Last 7 days</SelectItem>
+                                    <SelectItem value="14">Last 14 days</SelectItem>
+                                    <SelectItem value="30">Last 30 days</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-semibold text-secondary">
                                 Min salary
                             </label>
                             <Input
@@ -225,6 +338,20 @@ export default function Index({ jobs, filters }: Props) {
                                     setMinSalary(event.target.value)
                                 }
                                 placeholder="e.g. 60000"
+                                className="bg-surface-container-lowest"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-semibold text-secondary">
+                                Max salary
+                            </label>
+                            <Input
+                                type="number"
+                                value={maxSalary}
+                                onChange={(event) =>
+                                    setMaxSalary(event.target.value)
+                                }
+                                placeholder="e.g. 150000"
                                 className="bg-surface-container-lowest"
                             />
                         </div>
