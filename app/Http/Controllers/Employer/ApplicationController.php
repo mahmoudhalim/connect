@@ -40,7 +40,7 @@ class ApplicationController extends Controller
             'pending' => JobApplication::whereIn('job_posting_id', $jobPostingIds)
                 ->where('status', 'under_review')->count(),
             'shortlisted' => JobApplication::whereIn('job_posting_id', $jobPostingIds)
-                ->where('status', 'interviewing')->count(),
+                ->where('status', 'shortlisted')->count(),
         ];
 
         $jobPostings = JobPosting::where('employer_id', $user->id)
@@ -59,7 +59,7 @@ class ApplicationController extends Controller
     public function updateStatus(Request $request, JobApplication $application)
     {
         $request->validate([
-            'status' => 'required|in:under_review,interviewing,offer_extended,rejected,withdrawn',
+            'status' => 'required|in:under_review,shortlisted,interviewing,offer_extended,rejected,withdrawn',
         ]);
 
         $application->update(['status' => $request->status]);

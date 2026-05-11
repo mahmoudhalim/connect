@@ -14,7 +14,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useState } from 'react';
-import { useForm } from '@inertiajs/react';
 
 interface Filters {
     search?: string;
@@ -32,24 +31,34 @@ interface Props {
 const statusOptions = [
     { value: 'all', label: 'All Statuses' },
     { value: 'under_review', label: 'Pending Review' },
+    { value: 'shortlisted', label: 'Shortlisted' },
     { value: 'interviewing', label: 'Interviewing' },
-    { value: 'offer_extended', label: 'Shortlisted' },
+    { value: 'offer_extended', label: 'Offer Extended' },
     { value: 'rejected', label: 'Rejected' },
+];
+
+const statusActions = [
+    { value: 'shortlisted', label: 'Shortlist' },
+    { value: 'interviewing', label: 'Move to Interview' },
+    { value: 'offer_extended', label: 'Extend Offer' },
+    { value: 'rejected', label: 'Reject' },
 ];
 
 const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
         under_review: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+        shortlisted: 'bg-primary/10 text-primary border-primary/20',
         interviewing: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20',
-        offer_extended: 'bg-primary/10 text-primary border-primary/20',
+        offer_extended: 'bg-green-500/10 text-green-500 border-green-500/20',
         rejected: 'bg-error/10 text-error border-error/20',
         withdrawn: 'bg-surface-variant text-on-surface-variant border-outline-variant',
     };
 
     const labels: Record<string, string> = {
         under_review: 'Pending Review',
+        shortlisted: 'Shortlisted',
         interviewing: 'Interviewing',
-        offer_extended: 'Shortlisted',
+        offer_extended: 'Offer Extended',
         rejected: 'Rejected',
         withdrawn: 'Withdrawn',
     };
@@ -204,15 +213,25 @@ export default function Index({ applications, stats, jobPostings, filters }: Pro
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button className="text-on-surface-variant hover:text-primary transition-colors p-1" title="Message">
-                                                    <span className="material-symbols-outlined text-[20px]">chat</span>
-                                                </button>
-                                                <button className="text-primary border border-outline-variant hover:border-primary hover:bg-primary/10 transition-colors px-3 py-1 rounded text-xs font-medium">
-                                                    View Profile
-                                                </button>
-                                                <button className="text-on-surface-variant hover:text-on-surface transition-colors p-1" title="More options">
-                                                    <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                                                </button>
+                                                <Select
+                                                    value={application.status}
+                                                    onValueChange={(newStatus) => {
+                                                        router.patch(`/employer/applicants/${application.id}/status`, {
+                                                            status: newStatus,
+                                                        }, { preserveScroll: true });
+                                                    }}
+                                                >
+                                                    <SelectTrigger className="w-36 h-8 bg-surface-container-lowest text-xs">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {statusActions.map((action) => (
+                                                            <SelectItem key={action.value} value={action.value}>
+                                                                {action.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
                                         </td>
                                     </tr>

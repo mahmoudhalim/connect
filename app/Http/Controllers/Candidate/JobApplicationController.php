@@ -21,6 +21,8 @@ class JobApplicationController extends Controller
 
         $stats = [
             'total' => JobApplication::where('user_id', $userId)->count(),
+            'shortlisted' => JobApplication::where('user_id', $userId)
+                ->where('status', 'shortlisted')->count(),
             'interviewing' => JobApplication::where('user_id', $userId)
                 ->where('status', 'interviewing')->count(),
             'offers' => JobApplication::where('user_id', $userId)

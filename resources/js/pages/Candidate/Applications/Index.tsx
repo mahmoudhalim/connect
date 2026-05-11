@@ -14,6 +14,7 @@ const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
         under_review:
             'bg-surface-variant text-on-surface-variant border-outline-variant',
+        shortlisted: 'bg-primary/10 text-primary border-primary/20',
         interviewing: 'bg-tertiary/10 text-tertiary border-tertiary/20',
         offer_extended: 'bg-primary/20 text-primary-fixed border-primary/30',
         rejected: 'bg-error/10 text-error border-error/20',
@@ -23,6 +24,7 @@ const getStatusBadge = (status: string) => {
 
     const labels: Record<string, string> = {
         under_review: 'Under Review',
+        shortlisted: 'Shortlisted',
         interviewing: 'Interviewing',
         offer_extended: 'Offer Extended',
         rejected: 'Rejected',
@@ -40,6 +42,7 @@ const getStatusBadge = (status: string) => {
 const getStatusIcon = (status: string) => {
     const icons: Record<string, string> = {
         under_review: 'description',
+        shortlisted: 'bookmark_added',
         interviewing: 'forum',
         offer_extended: 'celebration',
         rejected: 'cancel',
@@ -59,13 +62,19 @@ export default function Index({ applications, stats }: Props) {
         {
             label: 'Interviewing',
             value: stats.interviewing,
-            color: 'text-tertiary',
+            color: 'text-primary',
             icon: 'forum',
+        },
+        {
+            label: 'Shortlisted',
+            value: stats.shortlisted,
+            color: 'text-tertiary',
+            icon: 'bookmark_added',
         },
         {
             label: 'Offers Extended',
             value: stats.offers,
-            color: 'text-primary',
+            color: 'text-green-500',
             icon: 'celebration',
         },
     ];
@@ -77,7 +86,7 @@ export default function Index({ applications, stats }: Props) {
                 <h2 className="mb-6 font-headline text-3xl font-bold tracking-tight">
                     My Applications
                 </h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                     {statsData.map((stat, index) => (
                         <div
                             key={index}
@@ -109,11 +118,12 @@ export default function Index({ applications, stats }: Props) {
             ) : (
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
                     {applications.data.map((application) => {
-                        console.log(application);
                         const statusBadge = getStatusBadge(application.status);
                         const statusIcon = getStatusIcon(application.status);
                         const isOfferExtended =
                             application.status === 'offer_extended';
+                        const isShortlisted =
+                            application.status === 'shortlisted';
 
                         const jobTitle =
                             application.job_posting?.title ||
@@ -131,13 +141,13 @@ export default function Index({ applications, stats }: Props) {
                                         : 'border-outline-variant'
                                 }`}
                             >
-                                {isOfferExtended && (
+                                {(isOfferExtended || isShortlisted) && (
                                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
                                 )}
                                 <div className="relative z-10 mb-4 flex items-start justify-between">
-                                    <div
+<div
                                         className={`flex h-12 w-12 items-center justify-center rounded border ${
-                                            isOfferExtended
+                                            isOfferExtended || isShortlisted
                                                 ? 'border-primary/20 bg-primary/10'
                                                 : 'border-outline-variant bg-surface-variant'
                                         }`}
