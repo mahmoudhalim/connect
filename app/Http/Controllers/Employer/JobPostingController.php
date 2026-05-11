@@ -64,7 +64,11 @@ class JobPostingController extends Controller
      */
     public function create()
     {
-        return Inertia::render('employer/jobs/create');
+        $categories = \App\Models\Category::all();
+
+        return Inertia::render('employer/jobs/create', [
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -72,7 +76,13 @@ class JobPostingController extends Controller
      */
     public function store(StoreJobPostingRequest $request)
     {
-        $jobPosting = $request->user()->jobPostings()->create($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('company_logo')) {
+            $data['company_logo'] = $request->file('company_logo')->store('company-logos', 'public');
+        }
+
+        $jobPosting = $request->user()->jobPostings()->create($data);
 
         return redirect()->route('employer.jobs.show', $jobPosting);
     }
@@ -94,7 +104,12 @@ class JobPostingController extends Controller
     {
         $this->authorize('update', $jobPosting);
 
-        return Inertia::render('employer/jobs/edit', compact('jobPosting'));
+        $categories = \App\Models\Category::all();
+
+        return Inertia::render('employer/jobs/edit', [
+            'jobPosting' => $jobPosting,
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -104,7 +119,13 @@ class JobPostingController extends Controller
     {
         $this->authorize('update', $jobPosting);
 
-        $jobPosting->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('company_logo')) {
+            $data['company_logo'] = $request->file('company_logo')->store('company-logos', 'public');
+        }
+
+        $jobPosting->update($data);
 
         return redirect()->route('employer.jobs.show', $jobPosting)->with('success', 'Job posting updated successfully.');
     }

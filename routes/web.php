@@ -34,6 +34,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('/employer/dashboard', 'employer/dashboard')->name('employer.dashboard');
     Route::inertia('/candidate/dashboard', 'candidate/dashboard')->name('candidate.dashboard');
 
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/moderation', [App\Http\Controllers\Admin\JobApprovalController::class, 'index'])->name('moderation.index');
+        Route::patch('/moderation/{jobPosting}/approve', [App\Http\Controllers\Admin\JobApprovalController::class, 'approve'])->name('moderation.approve');
+        Route::patch('/moderation/{jobPosting}/reject', [App\Http\Controllers\Admin\JobApprovalController::class, 'reject'])->name('moderation.reject');
+    });
+
     // Other specific routes
     Route::inertia('/candidate/search', 'test')->name('candidate.search');
 });
