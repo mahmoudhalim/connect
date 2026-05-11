@@ -15,9 +15,10 @@ class ApplyJobRequest extends FormRequest
     {
         return [
             'job_posting_id' => 'required|exists:job_postings,id',
-            'resume_path' => 'nullable|string',
-            'contact_email' => 'nullable|email',
+            'contact_email' => 'required|email',
             'contact_phone' => 'nullable|string|max:20',
+            'portfolio_url' => 'nullable|url|max:500',
+            'resume' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ];
     }
 }

@@ -34,12 +34,18 @@ class JobApplicationController extends Controller
             return back()->with('error', 'You have already applied for this job.');
         }
 
+        $resumePath = null;
+        if ($request->hasFile('resume')) {
+            $resumePath = $request->file('resume')->store('resumes', 'public');
+        }
+
         JobApplication::create([
             'job_posting_id' => $jobPosting->id,
             'user_id' => auth()->id(),
-            'resume_path' => $request->resume_path,
+            'resume_path' => $resumePath,
             'contact_email' => $request->contact_email,
             'contact_phone' => $request->contact_phone,
+            'portfolio_url' => $request->portfolio_url,
             'status' => 'pending',
         ]);
 
