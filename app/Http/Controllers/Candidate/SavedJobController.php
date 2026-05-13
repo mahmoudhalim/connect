@@ -12,7 +12,7 @@ class SavedJobController extends Controller
     public function index(Request $request)
     {
         $savedJobs = $request->user()->savedJobs()
-            ->with(['employer', 'category'])
+            ->with(['employer.companyProfile', 'category'])
             ->latest()
             ->paginate(12);
 

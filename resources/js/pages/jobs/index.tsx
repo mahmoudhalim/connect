@@ -1,4 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
+import { useCallback } from 'react';
 import JobPostingCard from '@/components/JobPostingCard';
 import type { JobPostingCardProps } from '@/components/JobPostingCard';
 import Pagination from '@/components/Pagination';
@@ -29,6 +30,9 @@ interface JobData {
     employer: {
         id: number;
         name: string;
+        company_profile?: {
+            location?: string;
+        } | null;
     };
     created_at: string;
     category?: {
@@ -56,28 +60,52 @@ interface Filters {
     category_id?: number | string;
     experience_level?: string;
     datePosted?: string;
+    status?: string;
 }
 
 interface Props {
     jobs: PaginatedData<JobData>;
     filters?: Filters;
     categories?: Category[];
+    savedIds?: number[];
 }
 
-function mapJobToCardProps(job: JobData): JobPostingCardProps {
+function mapJobToCardProps(job: JobData, isSaved: boolean): JobPostingCardProps {
     return {
         id: job.id,
         title: job.title,
-        location: job.location,
+        companyName: job.employer?.name,
+        location: job.employer?.company_profile?.location || job.location,
         type: job.employmentType,
         status: job.status === 'active' ? 'Active' : 'Closed',
         created_at: job.created_at,
+        isSaved,
     };
 }
 
-export default function Index({ jobs, filters, categories }: Props) {
+export default function Index({ jobs, filters, categories, savedIds: initialSavedIds = [] }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const isCandidateUser = auth?.user?.role === 'candidate';
+    const [savedIds, setSavedIds] = useState(initialSavedIds);
+
+    const handleToggleSave = useCallback(async (id: number) => {
+        const isSaved = savedIds.includes(id);
+        setSavedIds(prev => isSaved ? prev.filter(sid => sid !== id) : [...prev, id]);
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            await fetch(`/candidate/saved/${id}`, {
+                method: isSaved ? 'DELETE' : 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token || '',
+                },
+                body: isSaved ? undefined : '{}',
+            });
+        } catch { }
+    }, [savedIds]);
+
     const [search, setSearch] = useState(filters?.search ?? '');
     const [location, setLocation] = useState(filters?.location ?? '');
     const [employmentType, setEmploymentType] = useState(
@@ -97,6 +125,9 @@ export default function Index({ jobs, filters, categories }: Props) {
     const [datePosted, setDatePosted] = useState(
         filters?.datePosted ?? 'all',
     );
+    const [statusFilter, setStatusFilter] = useState(
+        filters?.status ?? 'active',
+    );
 
     const activeFilterCount = useMemo(() => {
         return [
@@ -109,6 +140,7 @@ export default function Index({ jobs, filters, categories }: Props) {
             categoryId !== 'all' ? categoryId : '',
             experienceLevel !== 'all' ? experienceLevel : '',
             datePosted !== 'all' ? datePosted : '',
+            statusFilter !== 'all' ? statusFilter : '',
         ].filter((value) => String(value || '').trim().length > 0).length;
     }, [
         search,
@@ -120,6 +152,7 @@ export default function Index({ jobs, filters, categories }: Props) {
         categoryId,
         experienceLevel,
         datePosted,
+        statusFilter,
     ]);
 
     const applyFilters = () => {
@@ -152,6 +185,9 @@ export default function Index({ jobs, filters, categories }: Props) {
         if (datePosted !== 'all') {
             params.datePosted = datePosted;
         }
+        if (statusFilter !== 'all') {
+            params.status = statusFilter;
+        }
 
         router.get('/jobs', params, {
             preserveState: true,
@@ -169,6 +205,7 @@ export default function Index({ jobs, filters, categories }: Props) {
         setCategoryId('all');
         setExperienceLevel('all');
         setDatePosted('all');
+        setStatusFilter('active');
         router.get('/jobs', {}, { preserveState: true, replace: true });
     };
 
@@ -329,6 +366,24 @@ export default function Index({ jobs, filters, categories }: Props) {
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-semibold text-secondary">
+                                Status
+                            </label>
+                            <Select
+                                value={statusFilter}
+                                onValueChange={setStatusFilter}
+                            >
+                                <SelectTrigger className="w-full bg-surface-container-lowest">
+                                    <SelectValue placeholder="Active only" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="active">Active only</SelectItem>
+                                    <SelectItem value="closed">Closed only</SelectItem>
+                                    <SelectItem value="all">All statuses</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-semibold text-secondary">
                                 Min salary
                             </label>
                             <Input
@@ -381,7 +436,8 @@ export default function Index({ jobs, filters, categories }: Props) {
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {jobs.data.map((job: JobData) => (
                             <JobPostingCard
-                                {...mapJobToCardProps(job)}
+                                {...mapJobToCardProps(job, savedIds.includes(job.id))}
+                                onToggleSave={isCandidateUser ? handleToggleSave : undefined}
                                 key={job.id}
                             />
                         ))}
