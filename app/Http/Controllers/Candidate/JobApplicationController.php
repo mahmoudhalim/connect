@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Candidate;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidate\ApplyJobRequest;
+use App\Http\Requests\Candidate\UpdateApplicationRequest;
 use App\Models\JobApplication;
 use App\Models\JobPosting;
 use Inertia\Inertia;
@@ -39,6 +40,10 @@ class JobApplicationController extends Controller
     {
         $jobPosting = JobPosting::findOrFail($request->job_posting_id);
 
+        if ($jobPosting->status !== 'active') {
+            return back()->with('error', 'This job is closed and not accepting applications.');
+        }
+
         $existingApplication = JobApplication::where('job_posting_id', $jobPosting->id)
             ->where('user_id', auth()->id())
             ->exists();
@@ -70,7 +75,7 @@ class JobApplicationController extends Controller
     {
         $this->authorize('view', $jobApplication);
 
-        $jobApplication->load('jobPosting.employer');
+        $jobApplication->load(['jobPosting.employer.companyProfile', 'candidate.candidateProfile']);
 
         return Inertia::render('candidate/applications/show', [
             'application' => $jobApplication,
@@ -85,5 +90,21 @@ class JobApplicationController extends Controller
 
         return redirect()->route('candidate.applications.index')
             ->with('success', 'Application cancelled successfully.');
+    }
+
+    public function update(UpdateApplicationRequest $request, JobApplication $jobApplication)
+    {
+        $this->authorize('update', $jobApplication);
+
+        $data = $request->validated();
+
+        if ($request->hasFile('resume')) {
+            $data['resume_path'] = $request->file('resume')->store('resumes', 'public');
+        }
+        unset($data['resume']);
+
+        $jobApplication->update($data);
+
+        return redirect()->back()->with('success', 'Application updated successfully.');
     }
 }

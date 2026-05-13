@@ -94,6 +94,8 @@ class JobPostingController extends Controller
     {
         $this->authorize('view', $jobPosting);
 
+        $jobPosting->load('employer', 'category');
+
         return Inertia::render('employer/jobs/show', compact('jobPosting'));
     }
 

@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/categories/{category}', [App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('categories.update');
         Route::delete('/categories/{category}', [App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
         Route::get('/users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('users.index');
+        Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('users.destroy');
     });
 
     // Other specific routes
@@ -64,6 +65,7 @@ Route::middleware(['auth', 'verified', 'role:candidate'])->prefix('candidate')->
     Route::get('/applications', [JobApplicationController::class, 'index'])->name('applications.index');
     Route::post('/applications', [JobApplicationController::class, 'store'])->name('applications.store');
     Route::get('/applications/{jobApplication}', [JobApplicationController::class, 'show'])->name('applications.show');
+    Route::patch('/applications/{jobApplication}', [JobApplicationController::class, 'update'])->name('applications.update');
     Route::delete('/applications/{jobApplication}', [JobApplicationController::class, 'destroy'])->name('applications.cancel');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

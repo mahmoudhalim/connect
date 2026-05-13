@@ -11,6 +11,15 @@ export interface JobPosting {
     employer: {
         id: number;
         name: string;
+        company_profile?: {
+            company_name?: string;
+            company_description?: string;
+            website?: string;
+            industry?: string;
+            company_size?: string;
+            location?: string;
+            company_logo?: string;
+        } | null;
     };
     created_at?: string;
 }

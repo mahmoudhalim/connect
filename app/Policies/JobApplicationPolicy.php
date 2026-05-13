@@ -24,7 +24,7 @@ class JobApplicationPolicy
 
     public function update(User $user, JobApplication $jobApplication): bool
     {
-        return false;
+        return $user->id === $jobApplication->user_id;
     }
 
     public function delete(User $user, JobApplication $jobApplication): bool
