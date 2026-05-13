@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
 class UserManagementController extends Controller
@@ -37,5 +38,16 @@ class UserManagementController extends Controller
             'filters' => $filters,
             'stats' => $stats,
         ]);
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        if ($user->role === 'admin') {
+            return back()->with('error', 'Admin accounts cannot be deleted.');
+        }
+
+        $user->delete();
+
+        return back()->with('success', 'User deleted successfully.');
     }
 }

@@ -14,6 +14,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 interface UserData {
     id: number;
@@ -52,6 +60,8 @@ function getRoleBadge(role: string) {
 export default function Index({ users, filters, stats }: Props) {
     const [search, setSearch] = useState(filters?.search ?? '');
     const [role, setRole] = useState(filters?.role ?? 'all');
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
     const applyFilters = () => {
         const params: Record<string, string> = {};
@@ -68,6 +78,21 @@ export default function Index({ users, filters, stats }: Props) {
 
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString();
+    };
+
+    const openDeleteDialog = (user: UserData) => {
+        setSelectedUser(user);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDelete = () => {
+        if (!selectedUser) return;
+        router.delete(`/admin/users/${selectedUser.id}`, {
+            onSuccess: () => {
+                setDeleteDialogOpen(false);
+                setSelectedUser(null);
+            },
+        });
     };
 
     const statsData = [
@@ -137,12 +162,13 @@ export default function Index({ users, filters, stats }: Props) {
                             <th className="px-6 py-4 font-medium">Role</th>
                             <th className="px-6 py-4 font-medium">Verified</th>
                             <th className="px-6 py-4 font-medium">Joined</th>
+                            <th className="px-6 py-4 font-medium text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm divide-y divide-outline-variant">
                         {users.data.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-on-surface-variant">No users found.</td>
+                                <td colSpan={6} className="px-6 py-8 text-center text-on-surface-variant">No users found.</td>
                             </tr>
                         ) : (
                             users.data.map((user) => (
@@ -163,6 +189,18 @@ export default function Index({ users, filters, stats }: Props) {
                                     </td>
                                     <td className="px-6 py-4 text-on-surface-variant">{user.email_verified_at ? 'Yes' : 'No'}</td>
                                     <td className="px-6 py-4 text-on-surface-variant">{formatDate(user.created_at)}</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => openDeleteDialog(user)}
+                                            disabled={user.role === 'admin'}
+                                            className="text-error hover:text-error"
+                                        >
+                                            Delete
+                                        </Button>
+                                    </td>
                                 </tr>
                             ))
                         )}
@@ -175,6 +213,21 @@ export default function Index({ users, filters, stats }: Props) {
                     </div>
                 )}
             </div>
+
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete User</DialogTitle>
+                        <DialogDescription>
+                            This will permanently remove {selectedUser?.name}. This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

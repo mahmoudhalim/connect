@@ -72,6 +72,10 @@ export default function ModerationIndex({
         );
     };
 
+    const canReject = (status: string) => {
+        return status === 'pending' || status === 'active';
+    };
+
     const openRejectDialog = (job: JobPosting) => {
         setSelectedJob(job);
         setRejectionReason('');
@@ -189,7 +193,7 @@ export default function ModerationIndex({
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => openRejectDialog(job)}
-                                                disabled={job.status !== 'pending'}
+                                                disabled={!canReject(job.status)}
                                             >
                                                 Reject
                                             </Button>

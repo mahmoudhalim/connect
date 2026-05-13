@@ -46,9 +46,11 @@ class JobApprovalController extends Controller
     {
         $request->validate(['rejection_reason' => 'nullable|string|max:500']);
 
-        $jobPosting->update([
-            'status' => 'closed',
-        ]);
+        if (!in_array($jobPosting->status, ['pending', 'active'], true)) {
+            return back()->with('error', 'Only pending or approved jobs can be rejected.');
+        }
+
+        $jobPosting->update(['status' => 'closed']);
 
         return back()->with('success', 'Job posting rejected.');
     }
