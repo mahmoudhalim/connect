@@ -21,12 +21,13 @@ class HomeController extends Controller
             'category_id',
             'experience_level',
             'datePosted',
+            'status',
         ]);
         $filters = array_filter($filters, function ($value) {
             return $value !== null && $value !== '';
         });
 
-        $jobs = JobPosting::with(['employer', 'category'])
+        $jobs = JobPosting::with(['employer.companyProfile', 'category'])
             ->when($request->search, function ($query) use ($request) {
                 $query->where('title', 'like', "%{$request->search}%")
                     ->orWhere('description', 'like', "%{$request->search}%");
@@ -56,16 +57,27 @@ class HomeController extends Controller
                 $days = (int) $request->datePosted;
                 $query->where('created_at', '>=', now()->subDays($days));
             })
-
-            ->where('status', 'active')
+            ->when($request->status, function ($query) use ($request) {
+                if (in_array($request->status, ['active', 'closed'], true)) {
+                    $query->where('status', $request->status);
+                }
+            }, function ($query) {
+                $query->where('status', 'active');
+            })
             ->latest()
             ->paginate(12)
             ->appends($filters);
+
+        $savedIds = [];
+        if (auth()->check() && auth()->user()->isCandidate()) {
+            $savedIds = auth()->user()->savedJobs()->pluck('job_posting_id')->toArray();
+        }
 
         return Inertia::render('jobs/index', [
             'jobs' => $jobs,
             'filters' => $filters,
             'categories' => Category::all(),
+            'savedIds' => $savedIds,
         ]);
     }
 

@@ -65,6 +65,7 @@ const getExperienceLabel = (level: string) => {
 
 export default function JobPostingShow({ job, showApply = false, showApplyButton, showLoginPrompt = false, user, isSaved = false }: JobPostingShowProps) {
     const shouldShowApplyButton = showApplyButton ?? showApply;
+    const isJobClosed = job.status !== 'active';
     const [showForm, setShowForm] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -247,8 +248,13 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                 <div className="bg-surface-container p-6 rounded-xl border border-outline-variant space-y-4">
                     <div className="space-y-3">
                         {shouldShowApplyButton && (
-                            <Button onClick={() => setShowForm(true)} className="w-full flex items-center justify-center gap-2">
-                                Apply Now <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                            <Button
+                                onClick={() => setShowForm(true)}
+                                className="w-full flex items-center justify-center gap-2"
+                                disabled={isJobClosed}
+                            >
+                                {isJobClosed ? 'Applications Closed' : 'Apply Now'}
+                                <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
                             </Button>
                         )}
                         <button

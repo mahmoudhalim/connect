@@ -1,10 +1,9 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import CandidateLayout from '@/layouts/CandidateLayout';
 import Pagination from '@/components/Pagination';
+import JobPostingCard from '@/components/JobPostingCard';
 import type { PaginatedData } from '@/types/pagination';
-import type { Auth } from '@/types/auth';
-import { Button } from '@/components/ui/button';
 
 interface SavedJob {
     id: number;
@@ -17,6 +16,9 @@ interface SavedJob {
     employer: {
         id: number;
         name: string;
+        company_profile?: {
+            location?: string;
+        } | null;
     };
     category?: {
         id: number;
@@ -31,6 +33,14 @@ interface Props {
 
 export default function Saved({ savedJobs }: Props) {
     const [removing, setRemoving] = useState<number | null>(null);
+
+    const getDaysActive = (createdAt?: string) => {
+        if (!createdAt) return 0;
+        const created = new Date(createdAt);
+        if (Number.isNaN(created.getTime())) return 0;
+        const diffMs = Date.now() - created.getTime();
+        return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    };
 
     const handleUnsave = (id: number) => {
         setRemoving(id);
@@ -70,78 +80,21 @@ export default function Saved({ savedJobs }: Props) {
                         {savedJobs.data.map((job) => (
                             <div
                                 key={job.id}
-                                className="group relative flex flex-col rounded-xl border border-outline-variant bg-surface-container p-5 transition-colors duration-200 hover:border-primary/50"
+                                className={removing === job.id ? 'pointer-events-none opacity-60' : ''}
                             >
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="font-semibold text-on-surface truncate">
-                                            {job.title}
-                                        </h3>
-                                        <p className="text-sm text-on-surface-variant truncate mt-0.5">
-                                            {job.employer?.name || 'Unknown'}
-                                        </p>
-                                    </div>
-                                    <span className="material-symbols-outlined text-primary text-[20px] ml-2">
-                                        bookmark
-                                    </span>
-                                </div>
-
-                                <div className="flex flex-wrap gap-2 mb-3 text-xs text-on-surface-variant">
-                                    {job.location && (
-                                        <span className="flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-xs">
-                                                location_on
-                                            </span>
-                                            {job.location}
-                                        </span>
-                                    )}
-                                    {job.employmentType && (
-                                        <span className="px-2 py-0.5 bg-surface-container-lowest border border-outline-variant rounded">
-                                            {job.employmentType}
-                                        </span>
-                                    )}
-                                    {job.workPlaceType && (
-                                        <span className="px-2 py-0.5 bg-surface-container-lowest border border-outline-variant rounded">
-                                            {job.workPlaceType}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {(job.minSalary || job.maxSalary) && (
-                                    <p className="text-sm text-on-surface font-medium mb-3">
-                                        {job.minSalary
-                                            ? `$${job.minSalary.toLocaleString()}`
-                                            : ''}
-                                        {job.minSalary && job.maxSalary
-                                            ? ' - '
-                                            : ''}
-                                        {job.maxSalary
-                                            ? `$${job.maxSalary.toLocaleString()}`
-                                            : ''}
-                                    </p>
-                                )}
-
-                                <div className="flex items-center justify-between mt-auto pt-3 border-t border-outline-variant">
-                                    <a
-                                        href={`/jobs/${job.id}`}
-                                        className="text-sm text-primary hover:underline flex items-center gap-1"
-                                    >
-                                        View details
-                                        <span className="material-symbols-outlined text-base">
-                                            arrow_forward
-                                        </span>
-                                    </a>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleUnsave(job.id)}
-                                        disabled={removing === job.id}
-                                        className="text-xs text-on-surface-variant hover:text-error"
-                                    >
-                                        Remove
-                                    </Button>
-                                </div>
+                                <JobPostingCard
+                                    id={job.id}
+                                    title={job.title}
+                                    companyName={job.employer?.name}
+                                    location={job.employer?.company_profile?.location || job.location}
+                                    type={job.employmentType || job.workPlaceType || 'Full Time'}
+                                    applicants={0}
+                                    daysActive={getDaysActive(job.created_at)}
+                                    isNew={getDaysActive(job.created_at) <= 3}
+                                    created_at={job.created_at}
+                                    isSaved
+                                    onToggleSave={handleUnsave}
+                                />
                             </div>
                         ))}
                     </div>
