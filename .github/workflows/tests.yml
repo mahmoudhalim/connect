@@ -20,6 +20,28 @@ jobs:
     strategy:
       matrix:
         php-version: ['8.4', '8.5']
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_DATABASE: connect_test
+          MARIADB_USER: test
+          MARIADB_PASSWORD: test
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 -ptest"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: connect_test
+      DB_USERNAME: test
+      DB_PASSWORD: test
 
     steps:
       - name: Checkout code
@@ -31,6 +53,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           tools: composer:v2
           coverage: xdebug
+          extensions: pdo_mysql
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -53,4 +76,4 @@ jobs:
         run: npm run build
 
       - name: Tests
-        run: ./vendor/bin/pest
+        run: php artisan migrate --force && ./vendor/bin/pest
