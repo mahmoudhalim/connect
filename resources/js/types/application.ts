@@ -53,6 +53,7 @@ export interface Application {
     contact_phone?: string;
     portfolio_url?: string;
     created_at: string;
+    deleted_at?: string | null;
     job_posting: JobPosting;
     candidate: Candidate;
 }

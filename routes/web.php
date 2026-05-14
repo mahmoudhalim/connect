@@ -66,6 +66,8 @@ Route::middleware(['auth', 'verified', 'role:candidate'])->prefix('candidate')->
     Route::post('/applications', [JobApplicationController::class, 'store'])->name('applications.store');
     Route::get('/applications/{jobApplication}', [JobApplicationController::class, 'show'])->name('applications.show');
     Route::patch('/applications/{jobApplication}', [JobApplicationController::class, 'update'])->name('applications.update');
+    Route::post('/applications/{jobApplication}/archive', [JobApplicationController::class, 'archive'])->name('applications.archive');
+    Route::post('/applications/{jobApplication}/restore', [JobApplicationController::class, 'restore'])->name('applications.restore');
     Route::delete('/applications/{jobApplication}', [JobApplicationController::class, 'destroy'])->name('applications.cancel');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

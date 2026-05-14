@@ -45,6 +45,7 @@ interface JobPostingShowProps {
     showLoginPrompt?: boolean;
     user?: { name: string; email: string };
     isSaved?: boolean;
+    hasApplied?: boolean;
 }
 
 const formatSalary = (min: number, max: number) => `$${min.toLocaleString()} - $${max.toLocaleString()}`;
@@ -63,7 +64,7 @@ const getExperienceLabel = (level: string) => {
     return labels[level] || level || 'Any';
 };
 
-export default function JobPostingShow({ job, showApply = false, showApplyButton, showLoginPrompt = false, user, isSaved = false }: JobPostingShowProps) {
+export default function JobPostingShow({ job, showApply = false, showApplyButton, showLoginPrompt = false, user, isSaved = false, hasApplied = false }: JobPostingShowProps) {
     const shouldShowApplyButton = showApplyButton ?? showApply;
     const isJobClosed = job.status !== 'active';
     const [showForm, setShowForm] = useState(false);
@@ -247,7 +248,12 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
             <div className="lg:col-span-1 space-y-6">
                 <div className="bg-surface-container p-6 rounded-xl border border-outline-variant space-y-4">
                     <div className="space-y-3">
-                        {shouldShowApplyButton && (
+                        {hasApplied ? (
+                            <div className="w-full rounded-lg border border-primary/30 bg-primary/10 py-3 px-4 text-center text-sm font-medium text-primary flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                                Already Applied
+                            </div>
+                        ) : (shouldShowApplyButton && (
                             <Button
                                 onClick={() => setShowForm(true)}
                                 className="w-full flex items-center justify-center gap-2"
@@ -256,7 +262,7 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                                 {isJobClosed ? 'Applications Closed' : 'Apply Now'}
                                 <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
                             </Button>
-                        )}
+                        ))}
                         <button
                             onClick={toggleSave}
                             disabled={saving}

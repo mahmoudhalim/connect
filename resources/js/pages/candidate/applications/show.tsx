@@ -131,18 +131,18 @@ function EditApplicationDialog({
 }
 
 export default function Show({ application }: Props) {
-    const [cancelOpen, setCancelOpen] = useState(false);
+    const [withdrawOpen, setWithdrawOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
-    const [cancelling, setCancelling] = useState(false);
+    const [withdrawingState, setWithdrawingState] = useState(false);
     const statusBadge = getStatusBadge(application.status);
     const profile = application.candidate?.candidate_profile;
     const company = application.job_posting?.employer?.company_profile;
 
-    const handleCancel = () => {
-        setCancelling(true);
+    const handleWithdrawAction = () => {
+        setWithdrawingState(true);
         router.delete(`/candidate/applications/${application.id}`, {
             preserveScroll: true,
-            onFinish: () => setCancelling(false),
+            onFinish: () => setWithdrawingState(false),
         });
     };
 
@@ -235,14 +235,29 @@ export default function Show({ application }: Props) {
                         {/* Actions Card */}
                         <div className="rounded-xl border border-outline-variant bg-surface-container p-6 space-y-4">
                             <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider">Actions</h3>
-                            {canEdit && (
+                            {canEdit ? (
                                 <div className="space-y-3">
                                     <Button type="button" onClick={() => setEditOpen(true)} className="w-full">
                                         Edit Application
                                     </Button>
-                                    <Button type="button" variant="outline" onClick={() => setCancelOpen(true)} className="w-full text-error border-error/50 hover:bg-error/10">
+                                    <Button type="button" variant="outline" onClick={() => setWithdrawOpen(true)} className="w-full text-error border-error/50 hover:bg-error/10">
                                         Cancel Application
                                     </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <p className="text-sm text-on-surface-variant">
+                                        {application.status === 'withdrawn'
+                                            ? 'You have withdrawn this application.'
+                                            : application.status === 'rejected'
+                                                ? 'This application has been rejected.'
+                                                : 'No actions available.'}
+                                    </p>
+                                    <Link href={`/jobs/${application.job_posting.id}`}>
+                                        <Button type="button" variant="outline" className="w-full">
+                                            View Job Posting
+                                        </Button>
+                                    </Link>
                                 </div>
                             )}
                         </div>
@@ -281,20 +296,19 @@ export default function Show({ application }: Props) {
 
             <EditApplicationDialog application={application} open={editOpen} onOpenChange={setEditOpen} />
 
-            <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+            <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Cancel Application</DialogTitle>
+                        <DialogTitle>Withdraw Application</DialogTitle>
                         <DialogDescription className="text-on-surface-variant">
                             Are you sure you want to withdraw your application for{' '}
                             <span className="font-medium text-on-surface">{application.job_posting.title}</span>?
-                            This action cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2">
-                        <Button type="button" variant="outline" onClick={() => setCancelOpen(false)}>Keep Application</Button>
-                        <Button type="button" variant="destructive" onClick={handleCancel} disabled={cancelling}>
-                            {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
+                        <Button type="button" variant="outline" onClick={() => setWithdrawOpen(false)}>Keep Application</Button>
+                        <Button type="button" variant="destructive" onClick={handleWithdrawAction} disabled={withdrawingState}>
+                            {withdrawingState ? 'Withdrawing...' : 'Yes, Withdraw'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

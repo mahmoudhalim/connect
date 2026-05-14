@@ -1,6 +1,16 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
 import Pagination from '@/components/Pagination';
 import CandidateLayout from '@/layouts/CandidateLayout';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { formatDate } from '@/lib/utils';
 import type { Application, ApplicationStats } from '@/types/application';
 import type { PaginatedData } from '@/types/pagination';
@@ -52,6 +62,33 @@ const getStatusIcon = (status: string) => {
 };
 
 export default function Index({ applications, stats }: Props) {
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [withdrawTarget, setWithdrawTarget] = useState<Application | null>(null);
+    const [withdrawing, setWithdrawing] = useState(false);
+
+    const handleWithdraw = () => {
+        if (!withdrawTarget) return;
+        setWithdrawing(true);
+        router.delete(`/candidate/applications/${withdrawTarget.id}`, {
+            onFinish: () => {
+                setWithdrawing(false);
+                setWithdrawTarget(null);
+            },
+        });
+    };
+
+    const canWithdraw = (status: string) =>
+        !['rejected', 'withdrawn'].includes(status);
+
+    const isArchived = (application: Application) =>
+        application.deleted_at !== null && application.deleted_at !== undefined;
+
+    const filteredApplications = useMemo(() => {
+        if (filterStatus === 'archived') return applications.data.filter(a => isArchived(a));
+        if (filterStatus === 'all') return applications.data.filter(a => !isArchived(a) && a.status !== 'withdrawn');
+        return applications.data.filter(a => a.status === filterStatus && !isArchived(a));
+    }, [applications.data, filterStatus]);
+
     const statsData = [
         {
             label: 'Total Applications',
@@ -108,16 +145,51 @@ export default function Index({ applications, stats }: Props) {
                 </div>
             </div>
 
-            {applications.data.length === 0 ? (
+            <div className="mb-6 flex flex-wrap gap-2 border-b border-outline-variant pb-4">
+                {[
+                    { key: 'all', label: 'All', count: applications.data.filter(a => !isArchived(a) && a.status !== 'withdrawn').length },
+                    { key: 'under_review', label: 'Under Review' },
+                    { key: 'shortlisted', label: 'Shortlisted' },
+                    { key: 'interviewing', label: 'Interviewing' },
+                    { key: 'offer_extended', label: 'Offer Extended' },
+                    { key: 'rejected', label: 'Rejected' },
+                    { key: 'withdrawn', label: 'Withdrawn' },
+                    { key: 'archived', label: 'Archived', count: applications.data.filter(a => isArchived(a)).length },
+                ].map(tab => (
+                    <button
+                        key={tab.key}
+                        onClick={() => setFilterStatus(tab.key)}
+                        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                            filterStatus === tab.key
+                                ? 'bg-primary text-on-primary'
+                                : 'text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface'
+                        }`}
+                    >
+                        {tab.label}
+                        {tab.count !== undefined && filterStatus === tab.key && (
+                            <span className="rounded-full bg-on-primary/20 px-1.5 py-0.5 text-xs">{tab.count}</span>
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {filteredApplications.length === 0 ? (
                 <div className="flex h-64 items-center justify-center rounded-xl border border-outline-variant bg-surface-container">
-                    <p className="text-on-surface-variant">
-                        No applications yet. Start applying to jobs to see them
-                        here.
-                    </p>
+                    <div className="text-center">
+                        <span className="material-symbols-outlined mb-2 block text-3xl text-on-surface-variant">filter_none</span>
+                        <p className="text-on-surface-variant">
+                            {filterStatus === 'all'
+                                ? 'No applications yet. Start applying to jobs to see them here.'
+                                : filterStatus === 'archived'
+                                    ? 'No archived applications.'
+                                    : `No applications with status "${getStatusBadge(filterStatus).label}".`
+                            }
+                        </p>
+                    </div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-                    {applications.data.map((application) => {
+                    {filteredApplications.map((application) => {
                         const statusBadge = getStatusBadge(application.status);
                         const statusIcon = getStatusIcon(application.status);
                         const isOfferExtended =
@@ -139,7 +211,7 @@ export default function Index({ applications, stats }: Props) {
                                     isOfferExtended
                                         ? 'relative overflow-hidden border-primary/30 hover:border-primary/50'
                                         : 'border-outline-variant'
-                                }`}
+                                } ${isArchived(application) ? 'opacity-60' : ''}`}
                             >
                                 {(isOfferExtended || isShortlisted) && (
                                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
@@ -147,20 +219,26 @@ export default function Index({ applications, stats }: Props) {
                                 <div className="relative z-10 mb-4 flex items-start justify-between">
 <div
                                         className={`flex h-12 w-12 items-center justify-center rounded border ${
-                                            isOfferExtended || isShortlisted
+                                            isArchived(application)
+                                                ? 'border-outline-variant bg-surface-variant'
+                                                : isOfferExtended || isShortlisted
                                                 ? 'border-primary/20 bg-primary/10'
                                                 : 'border-outline-variant bg-surface-variant'
                                         }`}
                                     >
                                         <span
-                                            className={`material-symbols-outlined ${isOfferExtended ? 'text-primary' : 'text-on-surface-variant'}`}
+                                            className={`material-symbols-outlined ${isArchived(application) ? 'text-on-surface-variant' : isOfferExtended ? 'text-primary' : 'text-on-surface-variant'}`}
                                         >
-                                            {statusIcon}
+                                            {isArchived(application) ? 'archive' : statusIcon}
                                         </span>
                                     </div>
-                                    <span className={statusBadge.class}>
-                                        {statusBadge.label}
-                                    </span>
+                                    {isArchived(application) ? (
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-surface-variant text-on-surface-variant border-outline-variant">Archived</span>
+                                    ) : (
+                                        <span className={statusBadge.class}>
+                                            {statusBadge.label}
+                                        </span>
+                                    )}
                                 </div>
                                 <h3 className="relative z-10 mb-1 font-headline text-lg font-bold text-on-surface transition-colors group-hover:text-primary">
                                     {jobTitle}
@@ -175,28 +253,53 @@ export default function Index({ applications, stats }: Props) {
                                         </span>
                                         {formatDate(application.created_at)}
                                     </span>
-                                    {isOfferExtended ? (
-                                        <button className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-fixed">
-                                            Review Offer
-                                        </button>
-                                    ) : application.status === 'rejected' ? (
-                                        <button className="flex items-center gap-1 text-sm text-on-surface-variant transition-colors hover:text-on-surface">
-                                            Archive{' '}
-                                            <span className="material-symbols-outlined text-[16px]">
-                                                archive
-                                            </span>
-                                        </button>
-                                    ) : (
-                                        <Link
-                                            href={`/candidate/applications/${application.id}`}
-                                            className="flex items-center gap-1 text-sm text-primary transition-colors hover:text-primary-fixed"
-                                        >
-                                            View Details{' '}
-                                            <span className="material-symbols-outlined text-[16px]">
-                                                arrow_forward
-                                            </span>
-                                        </Link>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {isArchived(application) ? (
+                                            <button
+                                                onClick={() => router.post(`/candidate/applications/${application.id}/restore`)}
+                                                className="flex items-center gap-1 text-sm text-on-surface-variant transition-colors hover:text-primary"
+                                            >
+                                                <span className="material-symbols-outlined text-[16px]">unarchive</span>
+                                                Unarchive
+                                            </button>
+                                        ) : (
+                                            <>
+                                        {canWithdraw(application.status) && (
+                                            <button
+                                                onClick={() => setWithdrawTarget(application)}
+                                                className="text-xs text-on-surface-variant underline-offset-2 transition-colors hover:text-error hover:underline"
+                                            >
+                                                Withdraw
+                                            </button>
+                                        )}
+                                        {isOfferExtended ? (
+                                            <button className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-fixed">
+                                                Review Offer
+                                            </button>
+                                        ) : application.status === 'rejected' ? (
+                                            <button
+                                                onClick={() => router.post(`/candidate/applications/${application.id}/archive`)}
+                                                className="flex items-center gap-1 text-sm text-on-surface-variant transition-colors hover:text-on-surface"
+                                            >
+                                                Archive{' '}
+                                                <span className="material-symbols-outlined text-[16px]">
+                                                    archive
+                                                </span>
+                                            </button>
+                                        ) : (
+                                            <Link
+                                                href={`/candidate/applications/${application.id}`}
+                                                className="flex items-center gap-1 text-sm text-primary transition-colors hover:text-primary-fixed"
+                                            >
+                                                View Details{' '}
+                                                <span className="material-symbols-outlined text-[16px]">
+                                                    arrow_forward
+                                                </span>
+                                            </Link>
+                                        )}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         );
@@ -209,6 +312,24 @@ export default function Index({ applications, stats }: Props) {
                     <Pagination {...applications} />
                 </div>
             )}
+
+            <Dialog open={withdrawTarget !== null} onOpenChange={(open) => !open && setWithdrawTarget(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Withdraw Application</DialogTitle>
+                        <DialogDescription className="text-on-surface-variant">
+                            Are you sure you want to withdraw your application for{' '}
+                            <span className="font-medium text-on-surface">{withdrawTarget?.job_posting?.title || 'this position'}</span>?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2">
+                        <Button type="button" variant="outline" onClick={() => setWithdrawTarget(null)}>Keep Application</Button>
+                        <Button type="button" variant="destructive" onClick={handleWithdraw} disabled={withdrawing}>
+                            {withdrawing ? 'Withdrawing...' : 'Yes, Withdraw'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </CandidateLayout>
     );
 }

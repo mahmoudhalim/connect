@@ -17,11 +17,13 @@ class JobApplicationController extends Controller
 
         $applications = JobApplication::with('jobPosting.employer')
             ->where('user_id', $userId)
+            ->withTrashed()
             ->latest()
             ->paginate(12);
 
         $stats = [
-            'total' => JobApplication::where('user_id', $userId)->count(),
+            'total' => JobApplication::where('user_id', $userId)
+                ->where('status', '!=', 'withdrawn')->count(),
             'shortlisted' => JobApplication::where('user_id', $userId)
                 ->where('status', 'shortlisted')->count(),
             'interviewing' => JobApplication::where('user_id', $userId)
@@ -46,6 +48,7 @@ class JobApplicationController extends Controller
 
         $existingApplication = JobApplication::where('job_posting_id', $jobPosting->id)
             ->where('user_id', auth()->id())
+            ->where('status', '!=', 'withdrawn')
             ->exists();
 
         if ($existingApplication) {
@@ -71,11 +74,11 @@ class JobApplicationController extends Controller
             ->with('success', 'Application submitted successfully!');
     }
 
-    public function show(JobApplication $jobApplication)
+    public function show($id)
     {
-        $this->authorize('view', $jobApplication);
+        $jobApplication = JobApplication::withTrashed()->with(['jobPosting.employer.companyProfile', 'candidate.candidateProfile'])->findOrFail($id);
 
-        $jobApplication->load(['jobPosting.employer.companyProfile', 'candidate.candidateProfile']);
+        $this->authorize('view', $jobApplication);
 
         return Inertia::render('candidate/applications/show', [
             'application' => $jobApplication,
@@ -86,10 +89,34 @@ class JobApplicationController extends Controller
     {
         $this->authorize('delete', $jobApplication);
 
-        $jobApplication->delete();
+        if ($jobApplication->status === 'withdrawn') {
+            return back()->with('error', 'Application is already withdrawn.');
+        }
+
+        $jobApplication->update(['status' => 'withdrawn']);
 
         return redirect()->route('candidate.applications.index')
-            ->with('success', 'Application cancelled successfully.');
+            ->with('success', 'Application withdrawn successfully.');
+    }
+
+    public function archive(JobApplication $jobApplication)
+    {
+        $this->authorize('update', $jobApplication);
+
+        $jobApplication->delete();
+
+        return back()->with('success', 'Application archived.');
+    }
+
+    public function restore($id)
+    {
+        $jobApplication = JobApplication::withTrashed()->findOrFail($id);
+
+        $this->authorize('update', $jobApplication);
+
+        $jobApplication->restore();
+
+        return back()->with('success', 'Application restored.');
     }
 
     public function update(UpdateApplicationRequest $request, JobApplication $jobApplication)

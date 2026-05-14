@@ -94,9 +94,17 @@ class HomeController extends Controller
             ? auth()->user()->savedJobs()->where('job_posting_id', $jobPosting->id)->exists()
             : false;
 
+        $hasApplied = auth()->check() && auth()->user()->isCandidate()
+            ? auth()->user()->applications()
+                ->where('job_posting_id', $jobPosting->id)
+                ->where('status', '!=', 'withdrawn')
+                ->exists()
+            : false;
+
         return Inertia::render('jobs/show', [
             'job' => $jobPosting,
             'isSaved' => $isSaved,
+            'hasApplied' => $hasApplied,
         ]);
     }
 }
