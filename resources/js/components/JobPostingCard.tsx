@@ -75,8 +75,6 @@ export interface JobPostingCardProps {
     status?: 'Active' | 'Draft' | 'Closed';
     location?: string;
     type?: string;
-    applicants?: number;
-    daysActive?: number;
     isNew?: boolean;
     created_at?: string;
     canEdit?: boolean;
@@ -91,8 +89,6 @@ export default function JobPostingCard({
     status = 'Active',
     location = 'New York, NY',
     type = 'Contract',
-    applicants = 5,
-    daysActive = 2,
     isNew = true,
     created_at,
     canEdit = false,

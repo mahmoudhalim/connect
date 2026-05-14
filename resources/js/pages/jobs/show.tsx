@@ -49,6 +49,7 @@ export default function Show({ job, isSaved = false, hasApplied = false }: Props
                 hasApplied={hasApplied}
                 showApply={isAuthenticated && !isEmployerUser && !hasApplied}
                 showApplyButton={isAuthenticated && !isEmployerUser && !hasApplied}
+                showSave={isAuthenticated && isCandidateUser}
                 showLoginPrompt={!isAuthenticated}
                 user={auth?.user}
             />

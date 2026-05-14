@@ -88,8 +88,6 @@ export default function Saved({ savedJobs }: Props) {
                                     companyName={job.employer?.name}
                                     location={job.employer?.company_profile?.location || job.location}
                                     type={job.employmentType || job.workPlaceType || 'Full Time'}
-                                    applicants={0}
-                                    daysActive={getDaysActive(job.created_at)}
                                     isNew={getDaysActive(job.created_at) <= 3}
                                     created_at={job.created_at}
                                     isSaved

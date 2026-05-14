@@ -42,6 +42,7 @@ interface JobPostingShowProps {
     job: Job;
     showApply?: boolean;
     showApplyButton?: boolean;
+    showSave?: boolean;
     showLoginPrompt?: boolean;
     user?: { name: string; email: string };
     isSaved?: boolean;
@@ -64,7 +65,7 @@ const getExperienceLabel = (level: string) => {
     return labels[level] || level || 'Any';
 };
 
-export default function JobPostingShow({ job, showApply = false, showApplyButton, showLoginPrompt = false, user, isSaved = false, hasApplied = false }: JobPostingShowProps) {
+export default function JobPostingShow({ job, showApply = false, showApplyButton, showSave = false, showLoginPrompt = false, user, isSaved = false, hasApplied = false }: JobPostingShowProps) {
     const shouldShowApplyButton = showApplyButton ?? showApply;
     const isJobClosed = job.status !== 'active';
     const [showForm, setShowForm] = useState(false);
@@ -263,13 +264,15 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                                 <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
                             </Button>
                         ))}
-                        <button
-                            onClick={toggleSave}
-                            disabled={saving}
-                            className="w-full bg-transparent hover:bg-surface-variant text-on-surface border border-outline-variant font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">{isSaved ? 'bookmark' : 'bookmark_add'}</span> {isSaved ? 'Saved' : 'Save for Later'}
-                        </button>
+                        {showSave && (
+                            <button
+                                onClick={toggleSave}
+                                disabled={saving}
+                                className="w-full bg-transparent hover:bg-surface-variant text-on-surface border border-outline-variant font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">{isSaved ? 'bookmark' : 'bookmark_add'}</span> {isSaved ? 'Saved' : 'Save for Later'}
+                            </button>
+                        )}
                     </div>
                     <p className="text-xs text-on-surface-variant text-center font-medium">Over 100 applicants. Apply soon.</p>
                 </div>

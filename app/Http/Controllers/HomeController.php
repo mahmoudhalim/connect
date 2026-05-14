@@ -90,7 +90,7 @@ class HomeController extends Controller
     {
         $jobPosting->load(['employer.companyProfile', 'category']);
 
-        $isSaved = auth()->check()
+        $isSaved = auth()->check() && auth()->user()->isCandidate()
             ? auth()->user()->savedJobs()->where('job_posting_id', $jobPosting->id)->exists()
             : false;
 
