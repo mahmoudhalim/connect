@@ -23,18 +23,18 @@ class StoreJobPostingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|min:5|max:30',
+            'title' => 'required|string|min:5|max:255',
             'employmentType' => 'required|in:full-time,part-time,contract,freelance',
             'workPlaceType' => 'required|in:hybrid,remote,onsite',
             'location' => 'required|string|max:255',
-            'description' => 'required|string|min:5|max:1023',
+            'description' => 'required|string|min:5|max:5000',
             'minSalary' => 'required|numeric|lt:maxSalary',
             'maxSalary' => 'required|numeric|gt:minSalary',
             'status' => 'nullable|in:pending,active,closed',
             'category_id' => 'nullable|exists:categories,id',
             'experience_level' => 'nullable|in:entry,mid,senior,lead,executive',
-            'requirements' => 'nullable|string|max:1023',
-            'benefits' => 'nullable|string|max:1023',
+            'requirements' => 'nullable|string|max:3000',
+            'benefits' => 'nullable|string|max:3000',
             'deadline' => 'nullable|date|after:today',
             'company_logo' => 'nullable|image|max:2048',
         ];

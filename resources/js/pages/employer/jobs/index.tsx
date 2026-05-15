@@ -173,7 +173,6 @@ export default function index({
                                     <SelectItem value="closed">
                                         Closed
                                     </SelectItem>
-                                    <SelectItem value="draft">Draft</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
