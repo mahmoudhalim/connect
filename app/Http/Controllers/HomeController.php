@@ -83,10 +83,6 @@ class HomeController extends Controller
 
     public function show(JobPosting $jobPosting)
     {
-        if ($jobPosting->status !== 'active') {
-            abort(404);
-        }
-
         $jobPosting->load(['employer.companyProfile', 'category']);
 
         $isSaved = auth()->check() && auth()->user()->isCandidate()
