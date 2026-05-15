@@ -143,4 +143,20 @@ class JobPostingController extends Controller
 
         return redirect()->route('employer.jobs.index')->with('success', 'Job posting deleted successfully.');
     }
+
+    /**
+     * Close the specified job posting.
+     */
+    public function close(JobPosting $jobPosting)
+    {
+        $this->authorize('close', $jobPosting);
+
+        if ($jobPosting->status === 'closed') {
+            return redirect()->back()->with('error', 'Job posting is already closed.');
+        }
+
+        $jobPosting->update(['status' => 'closed']);
+
+        return redirect()->route('employer.jobs.show', $jobPosting)->with('success', 'Job posting closed successfully.');
+    }
 }

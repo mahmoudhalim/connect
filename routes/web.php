@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/jobs/{jobPosting}/edit', [JobPostingController::class, 'edit'])->name('jobs.edit');
     Route::put('/jobs/{jobPosting}', [JobPostingController::class, 'update'])->name('jobs.update');
     Route::delete('/jobs/{jobPosting}', [JobPostingController::class, 'destroy'])->name('jobs.destroy');
+    Route::patch('/jobs/{jobPosting}/close', [JobPostingController::class, 'close'])->name('jobs.close');
     Route::get('/applicants', [ApplicationController::class, 'index'])->name('applicants.index');
     Route::get('/applicants/{application}', [ApplicationController::class, 'show'])->name('applicants.show');
     Route::patch('/applicants/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applicants.updateStatus');

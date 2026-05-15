@@ -1,6 +1,16 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import EmployerLayout from '@/layouts/EmployerLayout';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface JobPosting {
     id: number;
@@ -39,6 +49,14 @@ const statusStyles: Record<string, string> = {
 
 export default function Show({ jobPosting }: Props) {
     const statusStyle = statusStyles[jobPosting.status] || statusStyles.pending;
+    const [closeOpen, setCloseOpen] = useState(false);
+    const { patch, processing } = useForm();
+
+    const handleClose = () => {
+        patch(`/employer/jobs/${jobPosting.id}/close`, {
+            onSuccess: () => setCloseOpen(false),
+        });
+    };
 
     return (
         <EmployerLayout>
@@ -112,6 +130,29 @@ export default function Show({ jobPosting }: Props) {
                         <Link href={`/employer/jobs/${jobPosting.id}/edit`}>
                             <Button className="w-full">Edit Job</Button>
                         </Link>
+                        {jobPosting.status !== 'closed' && (
+                            <Dialog open={closeOpen} onOpenChange={setCloseOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="destructive" className="w-full">Close Job</Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Close Job Posting</DialogTitle>
+                                        <DialogDescription>
+                                            Are you sure you want to close this job posting? Candidates will no longer be able to apply.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <Button variant="outline" onClick={() => setCloseOpen(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button variant="destructive" onClick={handleClose} disabled={processing}>
+                                            Close Job
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        )}
                     </div>
 
                     <div className="rounded-xl border border-outline-variant bg-surface-container p-6 space-y-4">
