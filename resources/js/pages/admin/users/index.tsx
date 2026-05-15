@@ -64,7 +64,7 @@ export default function Index({ users, filters, stats }: Props) {
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
     const applyFilters = () => {
-        const params: Record<string, string> = {};
+        const params: Record<string, string> = { page: '1' };
         if (search) params.search = search;
         if (role !== 'all') params.role = role;
         router.get('/admin/users', params, { preserveState: true, replace: true });

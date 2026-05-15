@@ -61,7 +61,7 @@ export default function ModerationIndex({
     ] as const;
 
     const setFilter = (f: string) => {
-        router.get('/admin/moderation', { filter: f }, { preserveState: true });
+        router.get('/admin/moderation', { filter: f, page: 1 }, { preserveState: true });
     };
 
     const handleApprove = (job: JobPosting) => {

@@ -37,6 +37,10 @@ class JobApprovalController extends Controller
 
     public function approve(JobPosting $jobPosting)
     {
+        if ($jobPosting->status !== 'pending') {
+            return back()->with('error', 'Only pending jobs can be approved.');
+        }
+
         $jobPosting->update(['status' => 'active']);
 
         return back()->with('success', 'Job posting approved.');

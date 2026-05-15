@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import React, { useState } from 'react';
 import type { Auth } from '@/types/auth';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -92,6 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {children}
                 </main>
             </div>
+            <Toaster />
         </div>
     );
 }

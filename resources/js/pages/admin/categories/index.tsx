@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -29,6 +30,8 @@ export default function Index({ categories }: Props) {
     const [editing, setEditing] = useState<Category | null>(null);
     const [name, setName] = useState('');
     const [icon, setIcon] = useState('');
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
 
     const openCreate = () => {
         setEditing(null);
@@ -59,10 +62,20 @@ export default function Index({ categories }: Props) {
         }
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this category?')) {
-            router.delete(`/admin/categories/${id}`, { preserveScroll: true });
-        }
+    const handleDelete = (cat: Category) => {
+        setDeletingCategory(cat);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (!deletingCategory) return;
+        router.delete(`/admin/categories/${deletingCategory.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setDeleteDialogOpen(false);
+                setDeletingCategory(null);
+            },
+        });
     };
 
     return (
@@ -100,7 +113,7 @@ export default function Index({ categories }: Props) {
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <Button type="button" variant="outline" size="sm" onClick={() => openEdit(cat)}>Edit</Button>
-                                            <Button type="button" variant="destructive" size="sm" onClick={() => handleDelete(cat.id)}>Delete</Button>
+                                            <Button type="button" variant="destructive" size="sm" onClick={() => handleDelete(cat)}>Delete</Button>
                                         </div>
                                     </td>
                                 </tr>
@@ -132,6 +145,21 @@ export default function Index({ categories }: Props) {
                             <Button type="submit">{editing ? 'Update' : 'Create'}</Button>
                         </DialogFooter>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Category</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete "{deletingCategory?.name}"? Jobs in this category will have their category removed.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </>

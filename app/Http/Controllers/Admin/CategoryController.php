@@ -48,6 +48,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        \App\Models\JobPosting::where('category_id', $category->id)->update(['category_id' => null]);
         $category->delete();
 
         return redirect()->back()->with('success', 'Category deleted successfully.');
