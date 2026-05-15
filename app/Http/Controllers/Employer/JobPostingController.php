@@ -159,4 +159,20 @@ class JobPostingController extends Controller
 
         return redirect()->route('employer.jobs.show', $jobPosting)->with('success', 'Job posting closed successfully.');
     }
+
+    /**
+     * Reopen the specified job posting.
+     */
+    public function reopen(JobPosting $jobPosting)
+    {
+        $this->authorize('reopen', $jobPosting);
+
+        if ($jobPosting->status !== 'closed') {
+            return redirect()->back()->with('error', 'Job posting is not closed.');
+        }
+
+        $jobPosting->update(['status' => 'pending']);
+
+        return redirect()->back()->with('success', 'Job posting reopened successfully.');
+    }
 }

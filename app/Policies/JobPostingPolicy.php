@@ -64,6 +64,14 @@ class JobPostingPolicy
     }
 
     /**
+     * Determine whether the user can reopen the model.
+     */
+    public function reopen(User $user, JobPosting $jobPosting): bool
+    {
+        return $jobPosting->employer_id == $user->id;
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, JobPosting $jobPosting): bool
