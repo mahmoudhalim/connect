@@ -1,80 +1,56 @@
-import { Link, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
+import { Link, router } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import { formatDate } from '@/lib/utils';
-
-function DeleteButton({ id, onClose }: { id: number; onClose: () => void }) {
-    const { delete: destroy, processing } = useForm();
-
-    const handleDelete = () => {
-        destroy(`/employer/jobs/${id}`, {
-            onSuccess: () => onClose(),
-        });
-    };
-
-    return (
-        <button
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-error hover:bg-error/10 transition-colors"
-            onClick={handleDelete}
-            disabled={processing}
-        >
-            <span className="material-symbols-outlined text-[18px]">delete</span>
-            Delete
-        </button>
-    );
-}
-
-function CloseButton({ id, onClose }: { id: number; onClose: () => void }) {
-    const { patch, processing } = useForm();
-
-    const handleClose = () => {
-        patch(`/employer/jobs/${id}/close`, {
-            onSuccess: () => onClose(),
-        });
-    };
-
-    return (
-        <button
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-warning hover:bg-warning/10 transition-colors"
-            onClick={handleClose}
-            disabled={processing}
-        >
-            <span className="material-symbols-outlined text-[18px]">cancel</span>
-            Close
-        </button>
-    );
-}
 
 function EmployerActions({ id, status }: { id: number; status: string }) {
     const [open, setOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
-    const [closeOpen, setCloseOpen] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<'delete' | 'close' | 'reopen' | null>(null);
+    const [processing, setProcessing] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [open]);
+
+    const handleConfirm = () => {
+        if (processing) return;
+        setProcessing(true);
+        if (confirmAction === 'delete') {
+            router.delete(`/employer/jobs/${id}`, {
+                onFinish: () => { setConfirmAction(null); setOpen(false); setProcessing(false); },
+            });
+        } else if (confirmAction === 'close') {
+            router.patch(`/employer/jobs/${id}/close`, {
+                onFinish: () => { setConfirmAction(null); setOpen(false); setProcessing(false); },
+            });
+        } else if (confirmAction === 'reopen') {
+            router.patch(`/employer/jobs/${id}/reopen`, {
+                onFinish: () => { setConfirmAction(null); setOpen(false); setProcessing(false); },
+            });
+        }
+    };
 
     return (
-        <>
-            <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                    <button
-                        className="rounded p-1 text-on-secondary-container transition-colors hover:bg-surface-container-highest"
-                        title="Actions"
-                    >
-                        <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                    </button>
-                </PopoverTrigger>
-                <PopoverContent className="min-w-[180px]" style={{ position: 'absolute', right: 0, top: '100%' }}>
+        <div className="relative" ref={ref}>
+            <button
+                type="button"
+                onClick={() => setOpen(!open)}
+                className="rounded p-1 text-on-secondary-container transition-colors hover:bg-surface-container-highest"
+                title="Actions"
+            >
+                <span className="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+
+            {open && (
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] overflow-hidden rounded-lg border border-outline-variant bg-surface-container shadow-xl">
                     <div className="p-1">
                         <Link
                             href={`/employer/jobs/${id}/edit`}
@@ -84,43 +60,76 @@ function EmployerActions({ id, status }: { id: number; status: string }) {
                             <span className="material-symbols-outlined text-[18px]">edit_square</span>
                             Edit
                         </Link>
-                        {status !== 'closed' && (
-                            <CloseButton id={id} onClose={() => { setCloseOpen(false); setOpen(false); }} />
+                        {status === 'closed' ? (
+                            <button
+                                type="button"
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-tertiary hover:bg-tertiary/10 transition-colors"
+                                onClick={() => setConfirmAction('reopen')}
+                            >
+                                <span className="material-symbols-outlined text-[18px]">play_circle</span>
+                                Reopen
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-warning hover:bg-warning/10 transition-colors"
+                                onClick={() => setConfirmAction('close')}
+                            >
+                                <span className="material-symbols-outlined text-[18px]">cancel</span>
+                                Close
+                            </button>
                         )}
-                        <DeleteButton id={id} onClose={() => { setDeleteOpen(false); setOpen(false); }} />
-                    </div>
-                </PopoverContent>
-            </Popover>
-
-            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Delete Job Posting</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to delete this job posting? This action cannot be undone.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
                         <button
-                            className="rounded px-4 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest transition-colors"
-                            onClick={() => setDeleteOpen(false)}
+                            type="button"
+                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-error hover:bg-error/10 transition-colors"
+                            onClick={() => setConfirmAction('delete')}
                         >
-                            Cancel
-                        </button>
-                        <button
-                            className="rounded bg-error px-4 py-2 text-sm text-white hover:bg-error/90 transition-colors"
-                            onClick={() => {
-                                router.delete(`/employer/jobs/${id}`, {
-                                    onSuccess: () => setDeleteOpen(false),
-                                });
-                            }}
-                        >
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
                             Delete
                         </button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </>
+                    </div>
+                </div>
+            )}
+
+            {confirmAction && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { if (!processing) setConfirmAction(null); }}>
+                    <div className="mx-4 w-full max-w-sm rounded-xl border border-outline-variant bg-surface-container p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold text-on-surface mb-2">
+                            {confirmAction === 'delete' ? 'Delete Job Posting' : confirmAction === 'close' ? 'Close Job Posting' : 'Reopen Job Posting'}
+                        </h3>
+                        <p className="text-sm text-on-surface-variant mb-6">
+                            {confirmAction === 'delete'
+                                ? 'Are you sure you want to delete this job posting? This action cannot be undone.'
+                                : confirmAction === 'close'
+                                ? 'Are you sure you want to close this job posting? Candidates will no longer be able to apply.'
+                                : 'Are you sure you want to reopen this job posting? It will be set to pending for admin review.'}
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                type="button"
+                                className="rounded px-4 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest transition-colors disabled:opacity-50"
+                                onClick={() => setConfirmAction(null)}
+                                disabled={processing}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className={`rounded px-4 py-2 text-sm text-white transition-colors disabled:opacity-50 ${
+                                    confirmAction === 'delete' ? 'bg-error hover:bg-error/90' :
+                                    confirmAction === 'close' ? 'bg-warning hover:bg-warning/90' :
+                                    'bg-tertiary hover:bg-tertiary/90'
+                                }`}
+                                onClick={handleConfirm}
+                                disabled={processing}
+                            >
+                                {processing ? 'Processing...' : confirmAction === 'delete' ? 'Delete' : confirmAction === 'close' ? 'Close' : 'Reopen'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
 
@@ -255,13 +264,22 @@ export default function JobPostingCard({
                 </div>
                 <div className="flex gap-2">
                     {canEdit ? (
-                        <button
-                            onClick={() => router.visit(`/employer/applicants?job_id=${id}`)}
-                            className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-inverse-on-surface transition-colors duration-150 hover:bg-primary-fixed-dim active:scale-95"
-                            data-no-nav="true"
-                        >
-                            View Applicants
-                        </button>
+                        <>
+                            <button
+                                onClick={() => router.visit(`/employer/jobs/${id}`)}
+                                className="rounded border border-outline-variant px-3 py-1.5 text-sm font-medium text-on-surface transition-colors duration-150 hover:bg-surface-container-highest active:scale-95"
+                                data-no-nav="true"
+                            >
+                                View Job
+                            </button>
+                            <button
+                                onClick={() => router.visit(`/employer/applicants?job_id=${id}`)}
+                                className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-inverse-on-surface transition-colors duration-150 hover:bg-primary-fixed-dim active:scale-95"
+                                data-no-nav="true"
+                            >
+                                View Applicants
+                            </button>
+                        </>
                     ) : (
                         <button
                             className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-inverse-on-surface transition-colors duration-150 hover:bg-primary-fixed-dim active:scale-95"
