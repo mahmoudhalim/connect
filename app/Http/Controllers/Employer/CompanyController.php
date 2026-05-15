@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateCompanyProfileRequest;
 use App\Models\CompanyProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CompanyController extends Controller
@@ -24,8 +25,13 @@ class CompanyController extends Controller
         $data = $request->validated();
         $userId = $request->user()->id;
 
+        $existing = CompanyProfile::where('user_id', $userId)->first();
+
         $logoPath = null;
         if ($request->hasFile('logo')) {
+            if ($existing && $existing->company_logo) {
+                Storage::disk('public')->delete($existing->company_logo);
+            }
             $logoPath = $request->file('logo')->store('company-logos', 'public');
         }
 

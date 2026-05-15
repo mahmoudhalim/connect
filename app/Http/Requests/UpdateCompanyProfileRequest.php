@@ -14,7 +14,7 @@ class UpdateCompanyProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_name' => ['nullable', 'string', 'max:255'],
+            'company_name' => ['required', 'string', 'max:255'],
             'company_description' => ['nullable', 'string', 'max:2000'],
             'website' => ['nullable', 'url', 'max:500'],
             'industry' => ['nullable', 'string', 'max:255'],

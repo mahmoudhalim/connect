@@ -1,4 +1,4 @@
-import { Form, Head, usePage } from '@inertiajs/react';
+import { Form, Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import EmployerLayout from '@/layouts/EmployerLayout';
 import { FileInput } from '@/components/ui/file-input';
@@ -12,7 +12,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import type { Auth } from '@/types/auth';
 
 interface CompanyProfileData {
     id?: number;
@@ -58,18 +57,23 @@ const companySizes = [
 ];
 
 export default function Index({ profile }: Props) {
-    const [companyName, setCompanyName] = useState(profile?.company_name ?? '');
-    const [companyLogo, setCompanyLogo] = useState(profile?.company_logo ?? '');
-    const [companyDescription, setCompanyDescription] = useState(
-        profile?.company_description ?? '',
-    );
-    const [website, setWebsite] = useState(profile?.website ?? '');
+    const { errors } = usePage<any>().props;
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
     const [industry, setIndustry] = useState(profile?.industry ?? '');
     const [companySize, setCompanySize] = useState(profile?.company_size ?? '');
-    const [location, setLocation] = useState(profile?.location ?? '');
-    const [foundedYear, setFoundedYear] = useState(
-        profile?.founded_year ?? '',
-    );
+
+    const handleCancel = () => {
+        if (isDirty) {
+            setShowCancelConfirm(true);
+        } else {
+            router.visit('/dashboard');
+        }
+    };
+
+    const existingLogoUrl = profile?.company_logo
+        ? `/storage/${profile.company_logo}`
+        : '';
 
     return (
         <EmployerLayout>
@@ -90,18 +94,23 @@ export default function Index({ profile }: Props) {
                     encType="multipart/form-data"
                     options={{ preserveScroll: true }}
                     className="space-y-6"
+                    onSubmit={() => setIsDirty(false)}
                 >
+                    <input type="hidden" name="industry" value={industry} />
+                    <input type="hidden" name="company_size" value={companySize} />
+
                     <div className="space-y-2">
                         <label className="text-xs font-semibold text-secondary uppercase tracking-wider">
-                            Company Name
+                            Company Name <span className="text-error">*</span>
                         </label>
                         <Input
                             name="company_name"
-                            value={companyName}
-                            onChange={(e) => setCompanyName(e.target.value)}
+                            defaultValue={profile?.company_name}
                             placeholder="e.g. Acme Inc."
                             maxLength={255}
+                            onChange={() => setIsDirty(true)}
                         />
+                        {errors.company_name && <p className="mt-1 text-xs font-medium text-error">{errors.company_name}</p>}
                     </div>
 
                     <div className="grid gap-6 md:grid-cols-2">
@@ -111,7 +120,7 @@ export default function Index({ profile }: Props) {
                             </label>
                             <Select
                                 value={industry}
-                                onValueChange={setIndustry}
+                                onValueChange={(v) => { setIndustry(v); setIsDirty(true); }}
                             >
                                 <SelectTrigger className="w-full bg-surface-container-lowest">
                                     <SelectValue placeholder="Select industry" />
@@ -124,6 +133,7 @@ export default function Index({ profile }: Props) {
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {errors.industry && <p className="mt-1 text-xs font-medium text-error">{errors.industry}</p>}
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-secondary uppercase tracking-wider">
@@ -131,7 +141,7 @@ export default function Index({ profile }: Props) {
                             </label>
                             <Select
                                 value={companySize}
-                                onValueChange={setCompanySize}
+                                onValueChange={(v) => { setCompanySize(v); setIsDirty(true); }}
                             >
                                 <SelectTrigger className="w-full bg-surface-container-lowest">
                                     <SelectValue placeholder="Select size" />
@@ -147,6 +157,7 @@ export default function Index({ profile }: Props) {
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {errors.company_size && <p className="mt-1 text-xs font-medium text-error">{errors.company_size}</p>}
                         </div>
                     </div>
 
@@ -156,15 +167,14 @@ export default function Index({ profile }: Props) {
                         </label>
                         <Textarea
                             name="company_description"
-                            value={companyDescription}
-                            onChange={(e) =>
-                                setCompanyDescription(e.target.value)
-                            }
+                            defaultValue={profile?.company_description}
                             placeholder="Tell candidates about your company's mission, culture, and values..."
                             rows={5}
                             maxLength={2000}
                             className="resize-none"
+                            onChange={() => setIsDirty(true)}
                         />
+                        {errors.company_description && <p className="mt-1 text-xs font-medium text-error">{errors.company_description}</p>}
                     </div>
 
                     <div className="grid gap-6 md:grid-cols-2">
@@ -175,11 +185,12 @@ export default function Index({ profile }: Props) {
                             <Input
                                 name="website"
                                 type="url"
-                                value={website}
-                                onChange={(e) => setWebsite(e.target.value)}
+                                defaultValue={profile?.website}
                                 placeholder="https://example.com"
                                 maxLength={500}
+                                onChange={() => setIsDirty(true)}
                             />
+                            {errors.website && <p className="mt-1 text-xs font-medium text-error">{errors.website}</p>}
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-secondary uppercase tracking-wider">
@@ -187,11 +198,12 @@ export default function Index({ profile }: Props) {
                             </label>
                             <Input
                                 name="location"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
+                                defaultValue={profile?.location}
                                 placeholder="e.g. San Francisco, CA"
                                 maxLength={255}
+                                onChange={() => setIsDirty(true)}
                             />
+                            {errors.location && <p className="mt-1 text-xs font-medium text-error">{errors.location}</p>}
                         </div>
                     </div>
 
@@ -202,12 +214,13 @@ export default function Index({ profile }: Props) {
                         <Input
                             name="founded_year"
                             type="number"
-                            value={foundedYear}
-                            onChange={(e) => setFoundedYear(e.target.value)}
+                            defaultValue={profile?.founded_year}
                             placeholder="e.g. 2015"
                             min={1800}
                             max={new Date().getFullYear()}
+                            onChange={() => setIsDirty(true)}
                         />
+                        {errors.founded_year && <p className="mt-1 text-xs font-medium text-error">{errors.founded_year}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -216,16 +229,46 @@ export default function Index({ profile }: Props) {
                             accept="image/jpg,image/jpeg,image/png,image/webp"
                             label="Company Logo"
                             hint="Upload your company logo (max 2MB, jpg/png/webp)"
-                            value={companyLogo}
+                            value={existingLogoUrl}
+                            showPreview
+                            onValueChange={() => setIsDirty(true)}
                         />
+                        {errors.logo && <p className="mt-1 text-xs font-medium text-error">{errors.logo}</p>}
                     </div>
 
                     <div className="flex items-center gap-3 pt-2">
-                        <input type="hidden" name="_method" value="PATCH" />
+                        <Button type="button" variant="outline" onClick={handleCancel}>
+                            Cancel
+                        </Button>
                         <Button type="submit">Save Company Profile</Button>
                     </div>
                 </Form>
             </div>
+
+            {showCancelConfirm && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)}>
+                    <div className="mx-4 w-full max-w-sm rounded-xl border border-outline-variant bg-surface-container p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold text-on-surface mb-2">Discard Changes?</h3>
+                        <p className="text-sm text-on-surface-variant mb-6">You have unsaved changes. Are you sure you want to leave?</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                type="button"
+                                className="rounded px-4 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest transition-colors"
+                                onClick={() => setShowCancelConfirm(false)}
+                            >
+                                Stay
+                            </button>
+                            <button
+                                type="button"
+                                className="rounded bg-error px-4 py-2 text-sm text-white hover:bg-error/90 transition-colors"
+                                onClick={() => router.visit('/dashboard')}
+                            >
+                                Discard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </EmployerLayout>
     );
 }
