@@ -27,37 +27,7 @@ class HomeController extends Controller
         });
 
         $jobs = JobPosting::with(['employer.companyProfile', 'category'])
-            ->when($request->search, function ($query) use ($request) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('title', 'like', "%{$request->search}%")
-                        ->orWhere('description', 'like', "%{$request->search}%");
-                });
-            })
-            ->when($request->location, function ($query) use ($request) {
-                $query->where('location', 'like', "%{$request->location}%");
-            })
-            ->when($request->employmentType, function ($query) use ($request) {
-                $query->where('employmentType', $request->employmentType);
-            })
-            ->when($request->workPlaceType, function ($query) use ($request) {
-                $query->where('workPlaceType', $request->workPlaceType);
-            })
-            ->when($request->minSalary, function ($query) use ($request) {
-                $query->where('maxSalary', '>=', $request->minSalary);
-            })
-            ->when($request->maxSalary, function ($query) use ($request) {
-                $query->where('minSalary', '<=', $request->maxSalary);
-            })
-            ->when($request->category_id, function ($query) use ($request) {
-                $query->where('category_id', $request->category_id);
-            })
-            ->when($request->experience_level, function ($query) use ($request) {
-                $query->where('experience_level', $request->experience_level);
-            })
-            ->when($request->datePosted, function ($query) use ($request) {
-                $days = (int) $request->datePosted;
-                $query->where('created_at', '>=', now()->subDays($days));
-            })
+            ->filters($filters)
             ->where('status', 'active')
             ->latest()
             ->paginate(12)

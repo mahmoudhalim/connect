@@ -29,26 +29,7 @@ class JobPostingController extends Controller
         });
 
         $jobs = $request->user()->jobPostings()
-            ->when($request->search, function ($query) use ($request) {
-                $query->where('title', 'like', "%{$request->search}%")
-                    ->orWhere('description', 'like', "%{$request->search}%");
-            })
-            ->when($request->location, function ($query) use ($request) {
-                $query->where('location', 'like', "%{$request->location}%");
-            })
-            ->when($request->employmentType, function ($query) use ($request) {
-                $query->where('employmentType', $request->employmentType);
-            })
-            ->when($request->workPlaceType, function ($query) use ($request) {
-                $query->where('workPlaceType', $request->workPlaceType);
-            })
-            ->when($request->minSalary, function ($query) use ($request) {
-                $query->where('maxSalary', '>=', $request->minSalary);
-            })
-            
-            ->when($request->status, function ($query) use ($request) {
-                $query->where('status', $request->status);
-            })
+            ->filters($filters)
             ->latest()
             ->paginate(6)
             ->appends($filters);
