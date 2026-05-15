@@ -2,28 +2,17 @@ import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import Heading from '@/components/heading';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { cn, toUrl } from '@/lib/utils';
-import { edit as editAppearance } from '@/routes/appearance';
-import { edit } from '@/routes/profile';
-import { edit as editSecurity } from '@/routes/security';
-import type { NavItem } from '@/types';
+import { cn } from '@/lib/utils';
+
+interface NavItem {
+    title: string;
+    href: string;
+    icon: string;
+}
 
 const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: edit(),
-        icon: null,
-    },
-    {
-        title: 'Security',
-        href: editSecurity(),
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        href: editAppearance(),
-        icon: null,
-    },
+    { title: 'Profile', href: '/settings/profile', icon: 'person' },
+    { title: 'Security', href: '/settings/security', icon: 'lock' },
 ];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
@@ -47,25 +36,32 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             </div>
 
             <div className="flex flex-col lg:flex-row lg:gap-12">
-                <aside className="w-full shrink-0 lg:w-48">
-                    <nav
-                        className="flex flex-row space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1"
-                        aria-label="Settings"
-                    >
-                        {sidebarNavItems.map((item, index) => {
+                <aside className="w-full shrink-0 lg:w-64">
+                    <nav className="flex flex-col gap-1">
+                        {sidebarNavItems.map((item) => {
                             const active = isCurrentOrParentUrl(item.href);
                             return (
                                 <Link
-                                    key={`${toUrl(item.href)}-${index}`}
+                                    key={item.href}
                                     href={item.href}
                                     className={cn(
-                                        'inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap',
+                                        'flex items-center gap-3 border-l-4 px-4 py-3 text-sm transition-transform active:scale-[0.98]',
                                         active
-                                            ? 'bg-surface-container-highest text-primary'
-                                            : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface',
+                                            ? 'border-violet-400 bg-[#18181b] text-violet-400 font-medium'
+                                            : 'border-transparent text-[#a1a1aa] hover:bg-[#0c0c0f] hover:text-[#fafafa]',
                                     )}
                                 >
-                                    {item.title}
+                                    <span
+                                        className="material-symbols-outlined text-[20px]"
+                                        style={{
+                                            fontVariationSettings: active
+                                                ? "'FILL' 1"
+                                                : "'FILL' 0",
+                                        }}
+                                    >
+                                        {item.icon}
+                                    </span>
+                                    <span>{item.title}</span>
                                 </Link>
                             );
                         })}
