@@ -4,8 +4,9 @@ use App\Http\Controllers\Candidate\JobApplicationController;
 use App\Http\Controllers\Candidate\ProfileController;
 use App\Http\Controllers\Candidate\SavedJobController;
 use App\Http\Controllers\Employer\ApplicationController;
-use App\Http\Controllers\Employer\CompanyController;
 use App\Http\Controllers\Employer\CandidateSearchController;
+use App\Http\Controllers\Employer\CompanyController;
+use App\Http\Controllers\Employer\DashboardController;
 use App\Http\Controllers\Employer\JobPostingController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -34,7 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
 // Role-specific dashboard routes
-    Route::inertia('/employer/dashboard', 'employer/dashboard')->name('employer.dashboard');
+    Route::get('/employer/dashboard', [DashboardController::class, 'index'])->name('employer.dashboard');
     Route::get('/candidate/dashboard', function () {
         $user = auth()->user();
         return \Inertia\Inertia::render('candidate/dashboard', [
