@@ -21,7 +21,6 @@ class HomeController extends Controller
             'category_id',
             'experience_level',
             'datePosted',
-            'status',
         ]);
         $filters = array_filter($filters, function ($value) {
             return $value !== null && $value !== '';
@@ -29,8 +28,10 @@ class HomeController extends Controller
 
         $jobs = JobPosting::with(['employer.companyProfile', 'category'])
             ->when($request->search, function ($query) use ($request) {
-                $query->where('title', 'like', "%{$request->search}%")
-                    ->orWhere('description', 'like', "%{$request->search}%");
+                $query->where(function ($q) use ($request) {
+                    $q->where('title', 'like', "%{$request->search}%")
+                        ->orWhere('description', 'like', "%{$request->search}%");
+                });
             })
             ->when($request->location, function ($query) use ($request) {
                 $query->where('location', 'like', "%{$request->location}%");
@@ -57,13 +58,7 @@ class HomeController extends Controller
                 $days = (int) $request->datePosted;
                 $query->where('created_at', '>=', now()->subDays($days));
             })
-            ->when($request->status, function ($query) use ($request) {
-                if (in_array($request->status, ['active', 'closed'], true)) {
-                    $query->where('status', $request->status);
-                }
-            }, function ($query) {
-                $query->where('status', 'active');
-            })
+            ->where('status', 'active')
             ->latest()
             ->paginate(12)
             ->appends($filters);
@@ -88,6 +83,10 @@ class HomeController extends Controller
 
     public function show(JobPosting $jobPosting)
     {
+        if ($jobPosting->status !== 'active') {
+            abort(404);
+        }
+
         $jobPosting->load(['employer.companyProfile', 'category']);
 
         $isSaved = auth()->check() && auth()->user()->isCandidate()
