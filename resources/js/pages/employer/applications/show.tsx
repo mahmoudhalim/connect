@@ -97,10 +97,10 @@ export default function Show({ application }: Props) {
                                         {application.job_posting.location}
                                     </span>
                                 )}
-                                {application.job_posting.employment_type && (
+                                {application.job_posting.employmentType && (
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base">work</span>
-                                        {application.job_posting.employment_type}
+                                        {application.job_posting.employmentType}
                                     </span>
                                 )}
                                 <span className="flex items-center gap-1">

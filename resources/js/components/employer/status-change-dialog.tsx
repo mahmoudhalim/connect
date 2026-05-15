@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -49,6 +49,10 @@ export function StatusChangeDialog({
     onOpenChange: (open: boolean) => void;
 }) {
     const [selectedStatus, setSelectedStatus] = useState('');
+
+    useEffect(() => {
+        setSelectedStatus('');
+    }, [application?.id]);
 
     if (!application) return null;
 

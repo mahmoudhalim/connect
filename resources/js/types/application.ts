@@ -2,7 +2,7 @@ export interface JobPosting {
     id: number;
     title: string;
     location: string;
-    employment_type?: string;
+    employmentType?: string;
     work_place_type?: string;
     min_salary?: number;
     max_salary?: number;

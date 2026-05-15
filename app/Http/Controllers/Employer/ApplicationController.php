@@ -44,7 +44,6 @@ class ApplicationController extends Controller
         ];
 
         $jobPostings = JobPosting::where('employer_id', $user->id)
-            ->where('status', 'active')
             ->select('id', 'title')
             ->get();
 
@@ -58,6 +57,11 @@ class ApplicationController extends Controller
 
     public function updateStatus(Request $request, JobApplication $application)
     {
+        $user = $request->user();
+        $jobPostingIds = JobPosting::where('employer_id', $user->id)->pluck('id');
+
+        abort_unless($jobPostingIds->contains($application->job_posting_id), 403);
+
         $request->validate([
             'status' => 'required|in:under_review,shortlisted,interviewing,offer_extended,rejected,withdrawn',
         ]);
@@ -74,7 +78,7 @@ class ApplicationController extends Controller
 
         abort_unless($jobPostingIds->contains($application->job_posting_id), 403);
 
-        $application->load(['jobPosting', 'candidate.candidateProfile']);
+        $application->load(['jobPosting.employer', 'candidate.candidateProfile']);
 
         return Inertia::render('employer/applications/show', [
             'application' => $application,

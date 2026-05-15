@@ -46,12 +46,12 @@ export default function Index({ applications, stats, jobPostings, filters }: Pro
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const applyFilters = () => {
-        const params: Record<string, string> = {};
+        const params: Record<string, string> = { page: '1' };
         if (search) params.search = search;
         if (status !== 'all') params.status = status;
         if (jobPostingId !== 'all') params.job_posting_id = jobPostingId;
         router.get('/employer/applicants', params, {
-            preserveState: true,
+            preserveScroll: true,
             replace: true,
         });
     };
@@ -151,14 +151,14 @@ export default function Index({ applications, stats, jobPostings, filters }: Pro
                                             <td className="px-6 py-4 text-on-surface">{application.job_posting.title}</td>
                                             <td className="px-6 py-4 text-on-surface-variant">{formatDate(application.created_at)}</td>
                                             <td className="px-6 py-4"><span className={statusBadge.class}>{statusBadge.label}</span></td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Link href={`/employer/applicants/${application.id}`}>
-                                                        <Button type="button" variant="outline" size="sm" className="text-xs">View</Button>
-                                                    </Link>
-                                                    <Button type="button" variant="outline" size="sm" onClick={() => { setDialogApp(application); setDialogOpen(true); }} className="text-xs">Status</Button>
-                                                </div>
-                                            </td>
+                                             <td className="px-6 py-4 text-right">
+                                                 <div className="flex items-center justify-end gap-2">
+                                                     <Link href={`/employer/applicants/${application.id}`}>
+                                                         <Button type="button" variant="outline" size="sm" className="text-xs">View</Button>
+                                                     </Link>
+                                                     <Button type="button" variant="outline" size="sm" onClick={() => { setDialogApp(application); setDialogOpen(true); }} className="text-xs">Status</Button>
+                                                 </div>
+                                             </td>
                                         </tr>
                                     );
                                 })
