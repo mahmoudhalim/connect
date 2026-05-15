@@ -26,6 +26,7 @@ export interface JobPosting {
 
 export interface CandidateProfile {
     id?: number;
+    avatar_path?: string;
     headline?: string;
     bio?: string;
     location?: string;

@@ -44,6 +44,7 @@ function FileInput({
         } else {
             setFileName(file.name)
             setPreview(file.name)
+            onValueChange?.(file.name)
         }
     }
 

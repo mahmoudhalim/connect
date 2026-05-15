@@ -1,26 +1,12 @@
 import { Form, Head, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Auth } from '@/types';
+import type { CandidateProfile } from '@/types/candidate';
 import CandidateLayout from '@/layouts/CandidateLayout';
 import { FileInput } from '@/components/ui/file-input';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-
-interface CandidateProfile {
-    id?: number;
-    user_id: number;
-    headline?: string;
-    bio?: string;
-    location?: string;
-    phone?: string;
-    portfolio_url?: string;
-    linkedin_url?: string;
-    resume_path?: string;
-    experience_years?: number;
-    education?: string;
-    skills?: string;
-}
 
 interface Props {
     profile?: CandidateProfile;
@@ -29,6 +15,10 @@ interface Props {
 export default function Profile({ profile }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
 
+    const existingAvatarPath = profile?.avatar_path ?? '';
+    const existingAvatarUrl = existingAvatarPath
+        ? `/storage/${existingAvatarPath}`
+        : '';
     const existingResumePath = profile?.resume_path ?? '';
     const initialSkills = Array.isArray(profile?.skills)
         ? profile.skills.join(', ')
@@ -47,6 +37,25 @@ export default function Profile({ profile }: Props) {
     const [skills, setSkills] = useState(initialSkills);
     const [resumePath, setResumePath] = useState(existingResumePath);
     const [resumeRemoved, setResumeRemoved] = useState(false);
+    const [avatarRemoved, setAvatarRemoved] = useState(false);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
+    const prevAvatarPathRef = useRef(existingAvatarPath);
+
+    useEffect(() => {
+        return () => {
+            if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+        };
+    }, [avatarPreview]);
+
+    useEffect(() => {
+        if (prevAvatarPathRef.current !== existingAvatarPath) {
+            setAvatarFile(null);
+            setAvatarPreview(null);
+            prevAvatarPathRef.current = existingAvatarPath;
+        }
+    }, [existingAvatarPath]);
 
     return (
         <CandidateLayout>
@@ -59,15 +68,47 @@ export default function Profile({ profile }: Props) {
             </div>
 
             <div className="rounded-xl border border-outline-variant bg-surface-container p-6 space-y-8 max-w-2xl">
-                <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center">
-                        <span className="material-symbols-outlined text-3xl text-on-surface-variant">
-                            person
-                        </span>
+                <div className="flex items-start gap-4">
+                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center">
+                        {avatarPreview ? (
+                            <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
+                        ) : existingAvatarUrl && !avatarRemoved ? (
+                            <a href={existingAvatarUrl} target="_blank" rel="noopener noreferrer">
+                                <img src={existingAvatarUrl} alt={auth.user.name} className="h-full w-full object-cover cursor-pointer" />
+                            </a>
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                                <span className="material-symbols-outlined text-3xl text-on-surface-variant">
+                                    person
+                                </span>
+                            </div>
+                        )}
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <p className="font-semibold text-on-surface">{auth.user.name}</p>
                         <p className="text-sm text-on-surface-variant">{auth.user.email}</p>
+                        <div className="mt-2 flex items-center gap-2">
+                            {existingAvatarPath && !avatarRemoved && !avatarFile && (
+                                <Button type="button" variant="destructive" size="sm" onClick={() => {
+                                    setAvatarRemoved(true);
+                                    setAvatarFile(null);
+                                    setAvatarPreview(null);
+                                }}>
+                                    Remove
+                                </Button>
+                            )}
+                            {avatarRemoved && (
+                                <Button type="button" variant="outline" size="sm" onClick={() => setAvatarRemoved(false)}>
+                                    Undo
+                                </Button>
+                            )}
+                            <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()}>
+                                Change
+                            </Button>
+                            {avatarFile && (
+                                <span className="text-xs text-on-surface-variant truncate max-w-24">{avatarFile.name}</span>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -305,6 +346,28 @@ export default function Profile({ profile }: Props) {
                                     <p className="text-sm text-error">{errors.resume}</p>
                                 )}
                             </div>
+
+                            <input
+                                ref={avatarInputRef}
+                                type="file"
+                                name="avatar"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        setAvatarPreview(URL.createObjectURL(file));
+                                        setAvatarFile(file);
+                                        setAvatarRemoved(false);
+                                    }
+                                }}
+                            />
+                            {avatarRemoved && !avatarFile && (
+                                <input type="hidden" name="remove_avatar" value="1" />
+                            )}
+                            {errors.avatar && (
+                                <p className="text-sm text-error">{errors.avatar}</p>
+                            )}
 
                             <div className="flex items-center gap-3 pt-2">
                                 <Button type="submit" disabled={processing}>

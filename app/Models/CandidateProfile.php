@@ -9,6 +9,7 @@ class CandidateProfile extends Model
 {
     protected $fillable = [
         'user_id',
+        'avatar_path',
         'headline',
         'bio',
         'location',

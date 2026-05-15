@@ -1,6 +1,7 @@
 export interface CandidateProfile {
     id: number;
     user_id: number;
+    avatar_path?: string;
     headline?: string;
     bio?: string;
     location?: string;

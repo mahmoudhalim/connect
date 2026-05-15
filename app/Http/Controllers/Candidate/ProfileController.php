@@ -27,8 +27,9 @@ class ProfileController extends Controller
 
         $existing = CandidateProfile::where('user_id', $userId)->first();
         $oldResumePath = $existing?->resume_path;
+        $oldAvatarPath = $existing?->avatar_path;
 
-        $profileData = collect($data)->except('resume', 'remove_resume')->toArray();
+        $profileData = collect($data)->except('resume', 'remove_resume', 'avatar', 'remove_avatar')->toArray();
 
         if (isset($data['skills']) && is_string($data['skills'])) {
             $skills = array_filter(array_map('trim', explode(',', $data['skills'])));
@@ -54,6 +55,22 @@ class ProfileController extends Controller
 
         if ($shouldDeleteOldResume && $oldResumePath && $oldResumePath !== $newResumePath) {
             Storage::disk('public')->delete($oldResumePath);
+        }
+
+        $newAvatarPath = null;
+        $shouldDeleteOldAvatar = false;
+
+        if ($request->hasFile('avatar')) {
+            $newAvatarPath = $request->file('avatar')->store('avatars', 'public');
+            $profileData['avatar_path'] = $newAvatarPath;
+            $shouldDeleteOldAvatar = (bool) $oldAvatarPath;
+        } elseif (!empty($data['remove_avatar'])) {
+            $profileData['avatar_path'] = null;
+            $shouldDeleteOldAvatar = (bool) $oldAvatarPath;
+        }
+
+        if ($shouldDeleteOldAvatar && $oldAvatarPath && $oldAvatarPath !== $newAvatarPath) {
+            Storage::disk('public')->delete($oldAvatarPath);
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Profile updated successfully.']);
