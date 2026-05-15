@@ -3,6 +3,7 @@ import { useState } from 'react';
 import CandidateLayout from '@/layouts/CandidateLayout';
 import Pagination from '@/components/Pagination';
 import JobPostingCard from '@/components/JobPostingCard';
+import type { JobPostingCardProps } from '@/components/JobPostingCard';
 import type { PaginatedData } from '@/types/pagination';
 
 interface SavedJob {
@@ -13,6 +14,7 @@ interface SavedJob {
     workPlaceType: string;
     minSalary: number;
     maxSalary: number;
+    status: string;
     employer: {
         id: number;
         name: string;
@@ -88,6 +90,7 @@ export default function Saved({ savedJobs }: Props) {
                                     companyName={job.employer?.name}
                                     location={job.employer?.company_profile?.location || job.location}
                                     type={job.employmentType || job.workPlaceType || 'Full Time'}
+                                    status={job.status as JobPostingCardProps['status']}
                                     isNew={getDaysActive(job.created_at) <= 3}
                                     created_at={job.created_at}
                                     isSaved
