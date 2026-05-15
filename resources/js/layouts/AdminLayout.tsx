@@ -28,9 +28,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { href: '/admin/moderation', label: 'Moderation Queue', icon: 'pending_actions' },
         { href: '/admin/categories', label: 'Categories', icon: 'category' },
         { href: '/admin/users', label: 'User Management', icon: 'manage_accounts' },
-        { href: '/admin/employers', label: 'Employer Verifications', icon: 'fact_check' },
-        { href: '/admin/analytics', label: 'Platform Analytics', icon: 'analytics' },
-        { href: '/admin/config', label: 'System Config', icon: 'settings_suggest' },
     ];
 
     return (
