@@ -12,13 +12,10 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+Route::redirect('/', '/jobs')->name('home');
 
 // Public Job Routes
 Route::get('/jobs', [HomeController::class, 'jobs'])->name('jobs.index');
-Route::get('/jobs/search', [HomeController::class, 'search'])->name('jobs.search');
 Route::get('/jobs/{jobPosting}', [HomeController::class, 'show'])->name('jobs.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {

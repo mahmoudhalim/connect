@@ -67,20 +67,6 @@ export default function JobsLayout({ children }: Props) {
                         </span>
                         <span className="font-medium">Browse Jobs</span>
                     </Link>
-                    <Link
-                        href="/jobs/search"
-                        className={getLinkClasses('/jobs/search')}
-                    >
-                        <span
-                            className="material-symbols-outlined text-[20px]"
-                            style={{
-                                fontVariationSettings: isActive('/jobs/search') ? "'FILL' 1" : "'FILL' 0",
-                            }}
-                        >
-                            search
-                        </span>
-                        <span>Search</span>
-                    </Link>
 
                     {user && (
                         <div className="mt-4 border-t border-outline-variant pt-4">

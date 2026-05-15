@@ -76,11 +76,6 @@ class HomeController extends Controller
         ]);
     }
 
-    public function search(Request $request)
-    {
-        return $this->jobs($request);
-    }
-
     public function show(JobPosting $jobPosting)
     {
         $jobPosting->load(['employer.companyProfile', 'category']);
