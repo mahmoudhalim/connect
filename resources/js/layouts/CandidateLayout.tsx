@@ -126,13 +126,14 @@ export default function CandidateLayout({
                     </Link>
                     <Link
                         href="/candidate/profile"
-                        className={getLinkClasses('/candidate/profile')}
+                        className={getLinkClasses('/candidate/profile', true)}
                     >
                         <span
                             className="material-symbols-outlined text-[20px]"
                             style={{
                                 fontVariationSettings: isActive(
                                     '/candidate/profile',
+                                    true,
                                 )
                                     ? "'FILL' 1"
                                     : "'FILL' 0",
@@ -141,6 +142,25 @@ export default function CandidateLayout({
                             person
                         </span>
                         <span>Profile</span>
+                    </Link>
+                    <Link
+                        href="/candidate/profile/view"
+                        className={getLinkClasses('/candidate/profile/view', true)}
+                    >
+                        <span
+                            className="material-symbols-outlined text-[20px]"
+                            style={{
+                                fontVariationSettings: isActive(
+                                    '/candidate/profile/view',
+                                    true,
+                                )
+                                    ? "'FILL' 1"
+                                    : "'FILL' 0",
+                            }}
+                        >
+                            visibility
+                        </span>
+                        <span>View Profile</span>
                     </Link>
                     <Link
                         href="/settings/profile"

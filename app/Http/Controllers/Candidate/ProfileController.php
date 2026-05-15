@@ -11,6 +11,15 @@ use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    public function show(Request $request)
+    {
+        $profile = CandidateProfile::with('user')->where('user_id', auth()->id())->first();
+
+        return Inertia::render('candidate/profile/show', [
+            'candidate' => $profile,
+        ]);
+    }
+
     public function edit(Request $request)
     {
         $profile = CandidateProfile::where('user_id', auth()->id())->first();

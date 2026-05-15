@@ -70,6 +70,7 @@ Route::middleware(['auth', 'verified', 'role:candidate'])->prefix('candidate')->
     Route::post('/applications/{jobApplication}/restore', [JobApplicationController::class, 'restore'])->name('applications.restore');
     Route::delete('/applications/{jobApplication}', [JobApplicationController::class, 'destroy'])->name('applications.cancel');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/view', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/saved', [SavedJobController::class, 'index'])->name('saved.index');
     Route::post('/saved/{jobPosting}', [SavedJobController::class, 'store'])->name('saved.store');
