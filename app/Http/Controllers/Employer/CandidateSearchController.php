@@ -11,7 +11,7 @@ class CandidateSearchController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->only(['search', 'location', 'experienceMin', 'experienceMax']);
+        $filters = $request->only(['search', 'location', 'experienceMin']);
         $filters = array_filter($filters, fn($v) => $v !== null && $v !== '');
 
         $candidates = CandidateProfile::with('user')
@@ -21,7 +21,7 @@ class CandidateSearchController extends Controller
                     $q->where('headline', 'like', "%{$search}%")
                         ->orWhere('bio', 'like', "%{$search}%")
                         ->orWhere('location', 'like', "%{$search}%")
-                        ->orWhereJsonContains('skills', $search);
+                        ->orWhere('skills', 'like', "%\"{$search}\"%");
                 });
             })
             ->when($request->location, function ($query) use ($request) {
@@ -29,9 +29,6 @@ class CandidateSearchController extends Controller
             })
             ->when($request->experienceMin !== null && $request->experienceMin !== '', function ($query) use ($request) {
                 $query->where('experience_years', '>=', (float) $request->experienceMin);
-            })
-            ->when($request->experienceMax !== null && $request->experienceMax !== '', function ($query) use ($request) {
-                $query->where('experience_years', '<=', (float) $request->experienceMax);
             })
             ->latest()
             ->paginate(12)

@@ -20,7 +20,6 @@ interface Filters {
     search?: string;
     location?: string;
     experienceMin?: string;
-    experienceMax?: string;
 }
 
 interface Props {
@@ -30,10 +29,10 @@ interface Props {
 
 const experienceOptions = [
     { value: 'all', label: 'Any Level' },
-    { value: 'entry', label: 'Entry (0-2 yrs)' },
-    { value: 'mid', label: 'Mid (2-5 yrs)' },
-    { value: 'senior', label: 'Senior (5-10 yrs)' },
-    { value: 'lead', label: 'Lead (10+ yrs)' },
+    { value: '0', label: 'Entry (0-2 yrs)' },
+    { value: '2', label: 'Mid (2-5 yrs)' },
+    { value: '5', label: 'Senior (5-10 yrs)' },
+    { value: '10', label: 'Lead (10+ yrs)' },
 ];
 
 function getInitials(name: string): string {
@@ -59,27 +58,22 @@ export default function Index({ candidates, filters }: Props) {
     const [experienceMin, setExperienceMin] = useState(
         filters?.experienceMin ?? 'all',
     );
-    const [experienceMax, setExperienceMax] = useState(
-        filters?.experienceMax ?? 'all',
-    );
 
     const activeFilterCount = useMemo(() => {
         return [
             search,
             location,
             experienceMin !== 'all' ? experienceMin : '',
-            experienceMax !== 'all' ? experienceMax : '',
         ].filter((v) => String(v || '').trim()).length;
-    }, [search, location, experienceMin, experienceMax]);
+    }, [search, location, experienceMin]);
 
     const applyFilters = () => {
-        const params: Record<string, string> = {};
+        const params: Record<string, string> = { page: '1' };
         if (search) params.search = search;
         if (location) params.location = location;
         if (experienceMin !== 'all') params.experienceMin = experienceMin;
-        if (experienceMax !== 'all') params.experienceMax = experienceMax;
         router.get('/employer/candidates', params, {
-            preserveState: true,
+            preserveScroll: true,
             replace: true,
         });
     };
@@ -88,9 +82,8 @@ export default function Index({ candidates, filters }: Props) {
         setSearch('');
         setLocation('');
         setExperienceMin('all');
-        setExperienceMax('all');
         router.get('/employer/candidates', {}, {
-            preserveState: true,
+            preserveScroll: true,
             replace: true,
         });
     };
