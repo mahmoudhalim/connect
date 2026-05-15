@@ -55,6 +55,8 @@
   --color-on-tertiary: #001a12;
   --color-on-secondary-fixed: #18181b;
   --color-secondary: #71717a;
+  --color-warning: #f59e0b;
+  --color-warning-container: #78350f;
   --radius: 0.25rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;

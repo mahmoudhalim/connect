@@ -72,7 +72,7 @@ export interface JobPostingCardProps {
     id: number;
     title?: string;
     companyName?: string;
-    status?: 'Active' | 'Draft' | 'Closed';
+    status?: 'active' | 'draft' | 'closed' | 'pending';
     location?: string;
     type?: string;
     isNew?: boolean;
@@ -86,7 +86,7 @@ export default function JobPostingCard({
     id,
     title = 'Product Designer',
     companyName,
-    status = 'Active',
+    status = 'active',
     location = 'New York, NY',
     type = 'Contract',
     isNew = true,
@@ -99,12 +99,14 @@ export default function JobPostingCard({
     // Helper to determine status color styling
     const getStatusColors = () => {
         switch (status) {
-            case 'Active':
+            case 'active':
                 return 'bg-tertiary-container/20 text-tertiary border-tertiary/20';
-            case 'Draft':
+            case 'draft':
                 return 'bg-surface-variant text-on-surface-variant border-outline-variant';
-            case 'Closed':
+            case 'closed':
                 return 'bg-error-container/20 text-error border-error/20';
+            case 'pending':
+                return 'bg-warning-container/20 text-warning border-warning/20';
             default:
                 return 'bg-tertiary-container/20 text-tertiary border-tertiary/20';
         }
@@ -112,12 +114,14 @@ export default function JobPostingCard({
 
     const getStatusDotColor = () => {
         switch (status) {
-            case 'Active':
+            case 'active':
                 return 'bg-tertiary';
-            case 'Draft':
+            case 'draft':
                 return 'bg-outline';
-            case 'Closed':
+            case 'closed':
                 return 'bg-error';
+            case 'pending':
+                return 'bg-warning';
             default:
                 return 'bg-tertiary';
         }
@@ -217,6 +221,7 @@ export default function JobPostingCard({
                         )}
                     {canEdit ? (
                         <button
+                            onClick={() => router.visit(`/employer/applicants?job_id=${id}`)}
                             className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-inverse-on-surface transition-colors duration-150 hover:bg-primary-fixed-dim active:scale-95"
                             data-no-nav="true"
                         >

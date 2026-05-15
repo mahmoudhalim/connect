@@ -167,6 +167,9 @@ export default function index({
                                     <SelectItem value="active">
                                         Active
                                     </SelectItem>
+                                    <SelectItem value="pending">
+                                        Pending
+                                    </SelectItem>
                                     <SelectItem value="closed">
                                         Closed
                                     </SelectItem>
@@ -266,8 +269,8 @@ export default function index({
                 <>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {jobs.data.map(
-                            (job: JobPostingCardProps & { id?: number }) => (
-                                <JobPostingCard {...job} canEdit={true} key={job.id} />
+                            (job: JobPostingCardProps & { id?: number; employmentType?: string }) => (
+                                <JobPostingCard {...job} type={job.employmentType} canEdit={true} key={job.id} />
                             ),
                         )}
                     </div>
