@@ -77,7 +77,7 @@ function mapJobToCardProps(job: JobData, isSaved: boolean): JobPostingCardProps 
         companyName: job.employer?.name,
         location: job.employer?.company_profile?.location || job.location,
         type: job.employmentType,
-        status: job.status === 'active' ? 'Active' : 'Closed',
+        status: job.status as JobPostingCardProps['status'],
         created_at: job.created_at,
         isSaved,
     };
@@ -125,9 +125,6 @@ export default function Index({ jobs, filters, categories, savedIds: initialSave
     const [datePosted, setDatePosted] = useState(
         filters?.datePosted ?? 'all',
     );
-    const [statusFilter, setStatusFilter] = useState(
-        filters?.status ?? 'active',
-    );
 
     const activeFilterCount = useMemo(() => {
         return [
@@ -140,7 +137,6 @@ export default function Index({ jobs, filters, categories, savedIds: initialSave
             categoryId !== 'all' ? categoryId : '',
             experienceLevel !== 'all' ? experienceLevel : '',
             datePosted !== 'all' ? datePosted : '',
-            statusFilter !== 'all' ? statusFilter : '',
         ].filter((value) => String(value || '').trim().length > 0).length;
     }, [
         search,
@@ -152,7 +148,6 @@ export default function Index({ jobs, filters, categories, savedIds: initialSave
         categoryId,
         experienceLevel,
         datePosted,
-        statusFilter,
     ]);
 
     const applyFilters = () => {
@@ -185,9 +180,6 @@ export default function Index({ jobs, filters, categories, savedIds: initialSave
         if (datePosted !== 'all') {
             params.datePosted = datePosted;
         }
-        if (statusFilter !== 'all') {
-            params.status = statusFilter;
-        }
 
         router.get('/jobs', params, {
             preserveState: true,
@@ -205,7 +197,6 @@ export default function Index({ jobs, filters, categories, savedIds: initialSave
         setCategoryId('all');
         setExperienceLevel('all');
         setDatePosted('all');
-        setStatusFilter('active');
         router.get('/jobs', {}, { preserveState: true, replace: true });
     };
 
@@ -361,24 +352,6 @@ export default function Index({ jobs, filters, categories, savedIds: initialSave
                                     <SelectItem value="7">Last 7 days</SelectItem>
                                     <SelectItem value="14">Last 14 days</SelectItem>
                                     <SelectItem value="30">Last 30 days</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-xs font-semibold text-secondary">
-                                Status
-                            </label>
-                            <Select
-                                value={statusFilter}
-                                onValueChange={setStatusFilter}
-                            >
-                                <SelectTrigger className="w-full bg-surface-container-lowest">
-                                    <SelectValue placeholder="Active only" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="active">Active only</SelectItem>
-                                    <SelectItem value="closed">Closed only</SelectItem>
-                                    <SelectItem value="all">All statuses</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

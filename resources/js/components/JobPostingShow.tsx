@@ -60,6 +60,20 @@ const formatDate = (dateStr: string) => {
     if (diffDays < 7) return `${diffDays} days ago`;
     return date.toLocaleDateString();
 };
+const statusBadgeClasses: Record<string, string> = {
+    active: 'bg-tertiary-container/20 text-tertiary border-tertiary/20',
+    pending: 'bg-warning-container/20 text-warning border-warning/20',
+    closed: 'bg-error-container/20 text-error border-error/20',
+    draft: 'bg-surface-variant text-on-surface-variant border-outline-variant',
+};
+
+const statusLabel: Record<string, string> = {
+    active: 'Active',
+    pending: 'Pending Review',
+    closed: 'Closed',
+    draft: 'Draft',
+};
+
 const getExperienceLabel = (level: string) => {
     const labels: Record<string, string> = { entry: '0-2 Years', mid: '2-5 Years', senior: '5-10 Years', lead: '10+ Years', executive: 'Director+' };
     return labels[level] || level || 'Any';
@@ -202,8 +216,8 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-container-high text-on-surface border border-outline-variant">{job.employmentType}</span>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-container-high text-tertiary border border-outline-variant">
-                                <span className="material-symbols-outlined text-[14px] mr-1">bolt</span> {job.status === 'active' ? 'Active' : job.status}
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadgeClasses[job.status] || statusBadgeClasses.active}`}>
+                                <span className="material-symbols-outlined text-[14px] mr-1">bolt</span> {statusLabel[job.status] || job.status}
                             </span>
                         </div>
                     </div>
