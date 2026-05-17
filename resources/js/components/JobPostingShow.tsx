@@ -268,6 +268,14 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                                 <span className="material-symbols-outlined text-[20px]">check_circle</span>
                                 Already Applied
                             </div>
+                        ) : showLoginPrompt ? (
+                            <a
+                                href="/login"
+                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-violet-500 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-violet-600"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">login</span>
+                                Log in to apply
+                            </a>
                         ) : (shouldShowApplyButton && (
                             <Button
                                 onClick={() => setShowForm(true)}
@@ -334,16 +342,6 @@ export default function JobPostingShow({ job, showApply = false, showApplyButton
                     </div>
                 </div>
             </div>
-
-            
-
-            {showLoginPrompt && (
-                <div className="border-t border-outline-variant pt-6">
-                    <p className="text-on-surface-variant">
-                        Please <a href="/login" className="text-primary hover:underline">login</a> to apply for this job.
-                    </p>
-                </div>
-            )}
         </div>
     );
 }
