@@ -47,8 +47,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                     className={cn(
                                         'flex items-center gap-3 border-l-4 px-4 py-3 text-sm transition-transform active:scale-[0.98]',
                                         active
-                                            ? 'border-violet-400 bg-[#18181b] text-violet-400 font-medium'
-                                            : 'border-transparent text-[#a1a1aa] hover:bg-[#0c0c0f] hover:text-[#fafafa]',
+                                            ? 'border-primary bg-surface-container text-primary font-medium'
+                                            : 'border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
                                     )}
                                 >
                                     <span

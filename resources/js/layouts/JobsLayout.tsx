@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Auth } from '@/types/auth';
 
 interface Props {
@@ -8,9 +8,23 @@ interface Props {
 
 export default function JobsLayout({ children }: Props) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isDark, setIsDark] = useState(false);
     const { auth } = usePage<{ auth: Auth }>().props;
     const { url } = usePage();
     const user = auth?.user;
+
+    useEffect(() => {
+        const stored = localStorage.getItem('appearance');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setIsDark(stored === 'dark' || (stored === 'system' && prefersDark));
+    }, []);
+
+    const toggleTheme = () => {
+        const newMode = isDark ? 'light' : 'dark';
+        localStorage.setItem('appearance', newMode);
+        document.documentElement.classList.toggle('dark', newMode === 'dark');
+        setIsDark(newMode === 'dark');
+    };
 
     const isActive = (path: string, isExact: boolean = false) => {
         if (isExact) {
@@ -20,8 +34,8 @@ export default function JobsLayout({ children }: Props) {
     };
 
     const getLinkClasses = (path: string, isExact: boolean = false) => {
-        const activeClasses = 'border-violet-400 bg-[#18181b] text-violet-400 font-medium';
-        const inactiveClasses = 'border-transparent text-[#a1a1aa] hover:bg-[#0c0c0f] hover:text-[#fafafa]';
+        const activeClasses = 'border-primary bg-surface-container text-primary font-medium';
+        const inactiveClasses = 'border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface';
 
         return `flex items-center gap-3 border-l-4 px-4 py-3 transition-transform active:scale-[0.98] ${
             isActive(path, isExact) ? activeClasses : inactiveClasses
@@ -29,20 +43,20 @@ export default function JobsLayout({ children }: Props) {
     };
 
     return (
-        <div className="dark flex h-screen overflow-hidden bg-background font-body text-on-background antialiased">
+        <div className="flex h-screen overflow-hidden bg-background font-body text-on-background antialiased">
             {/* SideNavBar */}
             <nav
-                className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-outline-variant bg-[#09090b] text-sm transition-transform duration-300 ease-in-out lg:static lg:flex lg:flex-shrink-0 lg:translate-x-0 lg:flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-outline-variant bg-surface-container-lowest text-sm transition-transform duration-300 ease-in-out lg:static lg:flex lg:flex-shrink-0 lg:translate-x-0 lg:flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* Header */}
                 <div className="flex items-center gap-4 border-b border-outline-variant p-6">
                     <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-surface-container">
-                        <span className="material-symbols-outlined text-[24px] text-violet-400">
+                        <span className="material-symbols-outlined text-[24px] text-primary">
                             work
                         </span>
                     </div>
                     <div>
-                        <h1 className="text-lg font-black text-violet-400">
+                        <h1 className="text-lg font-black text-primary">
                             Obsidian Jobs
                         </h1>
                         <p className="text-xs text-on-surface-variant">
@@ -70,7 +84,7 @@ export default function JobsLayout({ children }: Props) {
 
                     {user && (
                         <div className="mt-4 border-t border-outline-variant pt-4">
-                            <p className="px-4 pb-2 text-xs text-[#71717a]">My Account</p>
+                            <p className="px-4 pb-2 text-xs text-on-surface-variant">My Account</p>
                             <Link
                                 href="/candidate/applications"
                                 className={getLinkClasses('/candidate/applications')}
@@ -105,11 +119,20 @@ export default function JobsLayout({ children }: Props) {
 
                 {/* Footer Navigation */}
                 <div className="mt-auto flex flex-col gap-1 border-t border-outline-variant p-4">
+                    <button
+                        onClick={toggleTheme}
+                        className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">
+                            {isDark ? 'light_mode' : 'dark_mode'}
+                        </span>
+                        <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+                    </button>
                     {!user ? (
                         <>
                             <Link
                                 href="/login"
-                                className="flex items-center gap-3 rounded-lg px-4 py-3 text-[#a1a1aa] transition-colors hover:bg-[#0c0c0f] hover:text-[#fafafa]"
+                                className="flex items-center gap-3 rounded-lg px-4 py-3 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
                             >
                                 <span className="material-symbols-outlined text-[20px]">
                                     login
@@ -118,7 +141,7 @@ export default function JobsLayout({ children }: Props) {
                             </Link>
                             <Link
                                 href="/register"
-                                className="flex items-center gap-3 rounded-lg px-4 py-3 text-[#a1a1aa] transition-colors hover:bg-[#0c0c0f] hover:text-[#fafafa]"
+                                className="flex items-center gap-3 rounded-lg px-4 py-3 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
                             >
                                 <span className="material-symbols-outlined text-[20px]">
                                     person_add
@@ -131,7 +154,7 @@ export default function JobsLayout({ children }: Props) {
                             href="/logout"
                             method="post"
                             as="button"
-                            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-[#a1a1aa] transition-colors hover:bg-[#0c0c0f] hover:text-[#fafafa]"
+                            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
                         >
                             <span className="material-symbols-outlined text-[20px]">
                                 logout
@@ -153,20 +176,28 @@ export default function JobsLayout({ children }: Props) {
             {/* Main Content Wrapper */}
             <div className="flex h-full w-full flex-1 flex-col bg-surface-container-lowest">
                 {/* TopNavBar (Mobile mainly) */}
-                <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#27272a] bg-[#09090b] px-6 text-[#fafafa] lg:hidden">
+                <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-6 text-on-surface lg:hidden">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setIsMobileMenuOpen(true)}
-                            className="text-[#fafafa] lg:hidden"
+                            className="text-on-surface lg:hidden"
                         >
                             <span className="material-symbols-outlined">
                                 menu
                             </span>
                         </button>
-                        <span className="text-xl font-bold tracking-tighter text-[#fafafa]">
+                        <span className="text-xl font-bold tracking-tighter text-on-surface">
                             Obsidian Jobs
                         </span>
                     </div>
+                    <button
+                        onClick={toggleTheme}
+                        className="text-on-surface"
+                    >
+                        <span className="material-symbols-outlined">
+                            {isDark ? 'light_mode' : 'dark_mode'}
+                        </span>
+                    </button>
                 </header>
 
                 {/* Page Content */}
